@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -52,31 +53,60 @@ func transpose[T comparable](matrix [][]T) [][]T {
 	return newRows
 }
 
-func part1(input fileType) int {
-	fmt.Printf("input: %d by %d\n", len(input), len(input[0]))
-	//x := countDistinct(input[0])
+func gammaRate(input fileType) int {
 	var inputX [][]uint8
 	inputX = input
 	tResult := transpose[uint8](inputX)
-	fmt.Printf("tResult: %d by %d\n", len(tResult), len(tResult[0]))
 	gammaRate := 0
 	for colIndex, column := range tResult {
 		_ = colIndex
 		distinct := countDistinct(column)
 		zeroCount := distinct[0]
 		oneCount := distinct[1]
-		fmt.Println(zeroCount, oneCount)
 		shiftPosition := 11 - colIndex
 		if oneCount > zeroCount {
-			fmt.Println("enabling bit in position %d", shiftPosition)
 			gammaRate += 1 << shiftPosition
 		}
 	}
+}
+
+func part1(input fileType) int {
+	gammaRate := gammaRate(input)
 	epsilonRate := gammaRate ^ 0b0000111111111111
 	return gammaRate * epsilonRate
 }
 
 func part2(input fileType) int {
+	var numbers = make([]int64, len(input))
+	for i := 0; i < len(input); i++ {
+		intArray := input[i]
+		strArray := fmap[uint8, string](intArray, func(i uint8) string {
+			return strconv.Itoa(int(i))
+		})
+		strJoined := strings.Join(strArray, "")
+		numericValue, err := strconv.ParseInt(strJoined, 2, 16)
+		if err != nil {
+			fmt.Println(err)
+		}
+		numbers[i] = numericValue
+	}
+
+	var keep = make([]bool, len(numbers))
+	for i := 0; i < len(keep); i++ {
+		keep[i] = true
+	}
+	kept := len(numbers)
+
+	// counting bits from left to right, like a heathen
+	for bitPosition := 0; bitPosition < 12; bitPosition++ {
+		for i := 0; i < len(keep); i++ {
+			if !keep[i] {
+				continue
+			}
+			// FML I hate this one
+		}
+		fmt.Println(kept)
+	}
 	return 0
 }
 
@@ -90,4 +120,12 @@ func countDistinct[T uint8](list []T) map[T]int {
 		keys[item] += 1
 	}
 	return keys
+}
+
+func fmap[I interface{}, O interface{}](items []I, mapFn func(I) O) []O {
+	var results []O = make([]O, len(items))
+	for _, item := range items {
+		results = append(results, mapFn(item))
+	}
+	return results
 }
