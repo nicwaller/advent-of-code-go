@@ -36,7 +36,7 @@ func parseFile() fileType {
 	}
 }
 
-func checkBingo(g grid.Grid[int]) bool {
+func checkBingo(g *grid.Grid[int]) bool {
 	var line *[]int
 	next := iter.Chain(g.RowIteratorIter(), g.ColIteratorIter())
 	for next(&line) {
@@ -47,7 +47,7 @@ func checkBingo(g grid.Grid[int]) bool {
 	return false
 }
 
-func boardSum(g grid.Grid[int]) int {
+func boardSum(g *grid.Grid[int]) int {
 	filterFn := func(v int) bool {
 		return v != 100 // 100 is a special sentinel number in this file
 	}
@@ -59,8 +59,8 @@ func part1(input fileType) int {
 	for _, drawn := range input.draws {
 		for _, board := range input.boards {
 			if board.Replace(drawn, 100) > 0 {
-				if checkBingo(board) {
-					finalScore := drawn * boardSum(board)
+				if checkBingo(&board) {
+					finalScore := drawn * boardSum(&board)
 					return finalScore // 16716
 				}
 			}
@@ -81,9 +81,9 @@ func part2(input fileType) int {
 			updates := board.Replace(drawn, 100)
 			changed := updates > 0
 			if changed {
-				if checkBingo(board) {
+				if checkBingo(&board) {
 					//fmt.Printf("got a bingo! on draw %d\n", drawNumber)
-					lastWinScore = drawn * boardSum(board)
+					lastWinScore = drawn * boardSum(&board)
 					alreadyBingo[boardId] = true
 				}
 			}
