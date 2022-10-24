@@ -109,6 +109,10 @@ func (grid Grid[T]) Fill(fillValue T) {
 	}
 }
 
+func (grid Grid[T]) Values() []T {
+	return grid.storage
+}
+
 func (grid Grid[T]) Map(fn func(v T) T) {
 	for i, item := range grid.storage {
 		grid.storage[i] = fn(item)
@@ -224,6 +228,22 @@ func (grid Grid[T]) Column(colIndex int) []T {
 		offset += grid.RowSize()
 	}
 	return column
+}
+
+func (grid Grid[T]) ColumnIterator() func() []T {
+	if len(grid.dimensions) != 2 {
+		panic("RowIterator() only makes sense for 2D grids")
+	}
+	colIndex := 0
+	return func() []T {
+		if colIndex < grid.ColumnCount() {
+			row := grid.Column(colIndex)
+			colIndex++
+			return row
+		} else {
+			return nil
+		}
+	}
 }
 
 func (grid Grid[T]) Width() int {
