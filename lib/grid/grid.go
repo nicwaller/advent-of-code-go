@@ -176,6 +176,23 @@ func (grid Grid[T]) Row(rowIndex int) []T {
 	return grid.storage[offset : offset+grid.RowSize()]
 }
 
+func (grid Grid[T]) RowIterator() func() []T {
+	// Assumes RowMajor storage
+	if len(grid.dimensions) != 2 {
+		panic("RowIterator() only makes sense for 2D grids")
+	}
+	rowIndex := 0
+	return func() []T {
+		if rowIndex < grid.RowCount() {
+			row := grid.Row(rowIndex)
+			rowIndex++
+			return row
+		} else {
+			return nil
+		}
+	}
+}
+
 func (grid Grid[T]) ColumnSize() int {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
