@@ -1,6 +1,7 @@
 package main
 
 import (
+	"advent-of-code/lib/grid"
 	"bufio"
 	"bytes"
 	"fmt"
@@ -12,24 +13,16 @@ import (
 func main() {
 	content := parseFile()
 	fmt.Printf("Part 1: %d\n", part1(content))
-	fmt.Printf("Part 2: %d\n", part2(content))
+	content2 := parseFile()
+	fmt.Printf("Part 2: %d\n", part2(content2))
 }
 
 type fileType struct {
 	draws  []int
-	boards []bingoBoard
+	boards []grid.Grid[int]
 }
-type bingoBoard [][]int
 
 func parseFile() fileType {
-	//arrayify (return 2d array of string)
-	//Map each item in the grid to int
-	//
-	//For each draw number
-	// For each board
-	//  grid.replace(draw, NaN) or -1
-	//  isWinner() ?
-	//  sumUnmarked() * drawNumber
 	fbytes, err := os.ReadFile("input.txt")
 	if err != nil {
 		fmt.Println(err)
@@ -44,7 +37,7 @@ func parseFile() fileType {
 
 	// bingo boards
 	//Divide remainder into chunks of 6 lines
-	var boards []bingoBoard
+	var boards []grid.Grid[int]
 	for {
 		boardLines := scanMulti(scanner, 6)
 		if len(boardLines) == 0 {
@@ -52,14 +45,8 @@ func parseFile() fileType {
 		}
 		//Prune the first (empty) line
 		boardLines = boardLines[1:]
-
-		var board = make([][]int, 5)
-		for rowIdx, rowStr := range boardLines {
-			fields := strings.Fields(rowStr)
-			vals := fmap(fields, unsafeAtoi)
-			board[rowIdx] = vals
-		}
-
+		boardStr := strings.Join(boardLines, "\n")
+		board := grid.FromDelimitedStringAsInt(boardStr, ' ')
 		boards = append(boards, board)
 	}
 	return fileType{
@@ -85,66 +72,45 @@ func unsafeAtoi(s string) int {
 	return res
 }
 
-func checkBingo(board bingoBoard) bool {
-	possibleBingo := true
-	for y := 0; y < 5; y++ {
-		possibleBingo = true
-		for x := 0; x < 5 && possibleBingo; x++ {
-			if board[y][x] != 100 {
-				possibleBingo = false
-				continue
-			}
-		}
-		if possibleBingo {
+func sum(values []int) int {
+	sum := 0
+	for _, val := range values {
+		sum += val
+	}
+	return sum
+}
+
+func checkBingo(g grid.Grid[int]) bool {
+	nextRow := g.RowIterator()
+	for row := nextRow(); row != nil; row = nextRow() {
+		if sum(row) == 500 {
 			return true
 		}
 	}
-	for x := 0; x < 5; x++ {
-		possibleBingo = true
-		for y := 0; y < 5 && possibleBingo; y++ {
-			if board[y][x] != 100 {
-				possibleBingo = false
-				continue
-			}
-		}
-		if possibleBingo {
+	nextCol := g.ColumnIterator()
+	for col := nextCol(); col != nil; col = nextCol() {
+		if sum(col) == 500 {
 			return true
 		}
 	}
 	return false
 }
 
-func boardSum(board bingoBoard) int {
-	sum := 0
-	for y := 0; y < 5; y++ {
-		for x := 0; x < 5; x++ {
-			val := board[y][x]
-			if val == 100 {
-				continue
-			} else {
-				sum += val
-			}
-		}
+func boardSum(g grid.Grid[int]) int {
+	filterFn := func(v int) bool {
+		return v != 100
 	}
-	return sum
+	remainingValues := ffilter[int](g.Values(), filterFn)
+	return sum(remainingValues)
 }
 
 func part1(input fileType) int {
 	for _, drawn := range input.draws {
 		for _, board := range input.boards {
-			changed := false
-			for rowId, row := range board {
-				for colId, val := range row {
-					if val == drawn {
-						board[rowId][colId] = 100
-						changed = true
-					}
-				}
-			}
-			if changed {
+			if board.Replace(drawn, 100) > 0 {
 				if checkBingo(board) {
 					finalScore := drawn * boardSum(board)
-					return finalScore
+					return finalScore // 16716
 				}
 			}
 		}
@@ -156,27 +122,25 @@ func part2(input fileType) int {
 	var lastWinScore int
 	alreadyBingo := make([]bool, len(input.boards))
 	for drawNumber, drawn := range input.draws {
+		_ = drawNumber
 		for boardId, board := range input.boards {
 			if alreadyBingo[boardId] {
 				continue
 			}
-			changed := false
-			for rowId, row := range board {
-				for colId, val := range row {
-					if val == drawn {
-						board[rowId][colId] = 100
-						changed = true
-					}
-				}
-			}
+			updates := board.Replace(drawn, 100)
+			changed := updates > 0
 			if changed {
 				if checkBingo(board) {
-					fmt.Printf("got a bingo! on draw %d\n", drawNumber)
+					//fmt.Printf("got a bingo! on draw %d\n", drawNumber)
 					lastWinScore = drawn * boardSum(board)
 					alreadyBingo[boardId] = true
 				}
 			}
 		}
+	}
+	if lastWinScore != 4880 {
+		fmt.Println(lastWinScore)
+		panic(4880)
 	}
 	return lastWinScore // 4880
 }
@@ -186,6 +150,16 @@ func fmap[I interface{}, O interface{}](items []I, mapFn func(I) O) []O {
 	for i, item := range items {
 		results[i] = mapFn(item)
 		//results = append(results, mapFn(item))
+	}
+	return results
+}
+
+func ffilter[T comparable](items []T, include func(T) bool) []T {
+	var results = make([]T, 0)
+	for _, item := range items {
+		if include(item) {
+			results = append(results, item)
+		}
 	}
 	return results
 }
