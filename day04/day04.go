@@ -1,20 +1,17 @@
 package main
 
 import (
+	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/grid"
-	"bufio"
-	"bytes"
+	"advent-of-code/lib/iter"
+	"advent-of-code/lib/util"
 	"fmt"
-	"os"
-	"strconv"
 	"strings"
 )
 
 func main() {
-	content := parseFile()
-	fmt.Printf("Part 1: %d\n", part1(content))
-	content2 := parseFile()
-	fmt.Printf("Part 2: %d\n", part2(content2))
+	fmt.Printf("Part 1: %d\n", part1(parseFile()))
+	fmt.Printf("Part 2: %d\n", part2(parseFile()))
 }
 
 type fileType struct {
@@ -23,29 +20,13 @@ type fileType struct {
 }
 
 func parseFile() fileType {
-	fbytes, err := os.ReadFile("input.txt")
-	if err != nil {
-		fmt.Println(err)
-	}
-	//Split by line
-	scanner := bufio.NewScanner(bytes.NewReader(fbytes))
-
-	//Take 1 for Number stream, split by comma, parseInt.
-	// numbers drawn
-	scanner.Scan()
-	drawNums := fmap[string, int](strings.Split(scanner.Text(), ","), unsafeAtoi)
-
-	// bingo boards
-	//Divide remainder into chunks of 6 lines
+	lines := util.ReadLines("input.txt")
+	drawStr, lines := util.TakeOne(lines)
+	drawStrs := strings.Split(drawStr, ",")
+	drawNums := f8l.Atoi(&drawStrs)
 	var boards []grid.Grid[int]
-	for {
-		boardLines := scanMulti(scanner, 6)
-		if len(boardLines) == 0 {
-			break
-		}
-		//Prune the first (empty) line
-		boardLines = boardLines[1:]
-		boardStr := strings.Join(boardLines, "\n")
+	for _, boardLines := range util.Chunk[string](lines, 6) {
+		boardStr := strings.Join(boardLines[1:], "\n")
 		board := grid.FromDelimitedStringAsInt(boardStr, ' ')
 		boards = append(boards, board)
 	}
@@ -55,41 +36,11 @@ func parseFile() fileType {
 	}
 }
 
-func scanMulti(scanner *bufio.Scanner, count int) []string {
-	results := make([]string, count)
-	for i := 0; i < count; i++ {
-		if !scanner.Scan() {
-			return []string{}
-		}
-		results[i] = scanner.Text()
-		//results = append(results, scanner.Text())
-	}
-	return results
-}
-
-func unsafeAtoi(s string) int {
-	res, _ := strconv.Atoi(s)
-	return res
-}
-
-func sum(values []int) int {
-	sum := 0
-	for _, val := range values {
-		sum += val
-	}
-	return sum
-}
-
 func checkBingo(g grid.Grid[int]) bool {
-	nextRow := g.RowIterator()
-	for row := nextRow(); row != nil; row = nextRow() {
-		if sum(row) == 500 {
-			return true
-		}
-	}
-	nextCol := g.ColumnIterator()
-	for col := nextCol(); col != nil; col = nextCol() {
-		if sum(col) == 500 {
+	var line *[]int
+	next := iter.Chain(g.RowIteratorIter(), g.ColIteratorIter())
+	for next(&line) {
+		if f8l.Sum(line) == 500 {
 			return true
 		}
 	}
@@ -98,10 +49,10 @@ func checkBingo(g grid.Grid[int]) bool {
 
 func boardSum(g grid.Grid[int]) int {
 	filterFn := func(v int) bool {
-		return v != 100
+		return v != 100 // 100 is a special sentinel number in this file
 	}
-	remainingValues := ffilter[int](g.Values(), filterFn)
-	return sum(remainingValues)
+	remainingValues := f8l.Filter[int](g.Values(), filterFn)
+	return f8l.Sum(&remainingValues)
 }
 
 func part1(input fileType) int {
@@ -143,23 +94,4 @@ func part2(input fileType) int {
 		panic(4880)
 	}
 	return lastWinScore // 4880
-}
-
-func fmap[I interface{}, O interface{}](items []I, mapFn func(I) O) []O {
-	var results []O = make([]O, len(items))
-	for i, item := range items {
-		results[i] = mapFn(item)
-		//results = append(results, mapFn(item))
-	}
-	return results
-}
-
-func ffilter[T comparable](items []T, include func(T) bool) []T {
-	var results = make([]T, 0)
-	for _, item := range items {
-		if include(item) {
-			results = append(results, item)
-		}
-	}
-	return results
 }

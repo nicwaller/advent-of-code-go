@@ -1,6 +1,7 @@
 package grid
 
 import (
+	"advent-of-code/lib/iter"
 	"fmt"
 	"strconv"
 	"strings"
@@ -82,7 +83,7 @@ func NewGrid[T comparable](dimensions ...int) Grid[T] {
 	}
 }
 
-func (grid Grid[T]) String() string {
+func (grid *Grid[T]) String() string {
 	switch len(grid.dimensions) {
 	case 1:
 		return fmt.Sprint(grid.storage)
@@ -103,17 +104,17 @@ func (grid Grid[T]) String() string {
 	// maybe redo this with reader/writer
 }
 
-func (grid Grid[T]) Fill(fillValue T) {
+func (grid *Grid[T]) Fill(fillValue T) {
 	for i, _ := range grid.storage {
 		grid.storage[i] = fillValue
 	}
 }
 
-func (grid Grid[T]) Values() []T {
-	return grid.storage
+func (grid *Grid[T]) Values() *[]T {
+	return &grid.storage
 }
 
-func (grid Grid[T]) Map(fn func(v T) T) {
+func (grid *Grid[T]) Map(fn func(v T) T) {
 	for i, item := range grid.storage {
 		grid.storage[i] = fn(item)
 	}
@@ -130,7 +131,7 @@ func TransformGrid[T comparable, Z comparable](g Grid[T], transform func(val T) 
 	}
 }
 
-func (grid Grid[T]) FillFunc2D(fn func(v T, x int, y int) T) {
+func (grid *Grid[T]) FillFunc2D(fn func(v T, x int, y int) T) {
 	rowSize := grid.RowSize()
 	for i, _ := range grid.storage {
 		x := i % rowSize
@@ -141,7 +142,7 @@ func (grid Grid[T]) FillFunc2D(fn func(v T, x int, y int) T) {
 
 // TODO: also implement FillFunc() for n-dimensions (variadic or array?)
 
-func (grid Grid[T]) Replace(needle T, replacement T) int {
+func (grid *Grid[T]) Replace(needle T, replacement T) int {
 	replacements := 0
 	for index, item := range grid.storage {
 		if item == needle {
@@ -152,7 +153,7 @@ func (grid Grid[T]) Replace(needle T, replacement T) int {
 	return replacements
 }
 
-func (grid Grid[T]) RowSize() int {
+func (grid *Grid[T]) RowSize() int {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
 		panic("RowSize() only makes sense for 2D grids")
@@ -160,7 +161,7 @@ func (grid Grid[T]) RowSize() int {
 	return grid.dimensions[1]
 }
 
-func (grid Grid[T]) RowCount() int {
+func (grid *Grid[T]) RowCount() int {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
 		panic("RowCount() only makes sense for 2D grids")
@@ -168,7 +169,7 @@ func (grid Grid[T]) RowCount() int {
 	return grid.dimensions[0]
 }
 
-func (grid Grid[T]) Row(rowIndex int) []T {
+func (grid *Grid[T]) Row(rowIndex int) []T {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
 		panic("Row() only makes sense for 2D grids")
@@ -180,7 +181,7 @@ func (grid Grid[T]) Row(rowIndex int) []T {
 	return grid.storage[offset : offset+grid.RowSize()]
 }
 
-func (grid Grid[T]) RowIterator() func() []T {
+func (grid *Grid[T]) RowIterator() func() []T {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
 		panic("RowIterator() only makes sense for 2D grids")
@@ -197,7 +198,25 @@ func (grid Grid[T]) RowIterator() func() []T {
 	}
 }
 
-func (grid Grid[T]) ColumnSize() int {
+func (grid *Grid[T]) RowIteratorIter() iter.Iterator[[]T] {
+	// Assumes RowMajor storage
+	if len(grid.dimensions) != 2 {
+		panic("RowIterator() only makes sense for 2D grids")
+	}
+	rowIndex := 0
+	return func(ref **[]T) bool {
+		if rowIndex < grid.RowCount() {
+			row := grid.Row(rowIndex)
+			*ref = &row
+			rowIndex++
+			return true
+		} else {
+			return false
+		}
+	}
+}
+
+func (grid *Grid[T]) ColumnSize() int {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
 		panic("ColumnSize() only makes sense for 2D grids")
@@ -205,7 +224,7 @@ func (grid Grid[T]) ColumnSize() int {
 	return grid.dimensions[0]
 }
 
-func (grid Grid[T]) ColumnCount() int {
+func (grid *Grid[T]) ColumnCount() int {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
 		panic("ColumnCount() only makes sense for 2D grids")
@@ -213,7 +232,7 @@ func (grid Grid[T]) ColumnCount() int {
 	return grid.dimensions[1]
 }
 
-func (grid Grid[T]) Column(colIndex int) []T {
+func (grid *Grid[T]) Column(colIndex int) []T {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
 		panic("Column() only makes sense for 2D grids")
@@ -230,7 +249,7 @@ func (grid Grid[T]) Column(colIndex int) []T {
 	return column
 }
 
-func (grid Grid[T]) ColumnIterator() func() []T {
+func (grid *Grid[T]) ColumnIterator() func() []T {
 	if len(grid.dimensions) != 2 {
 		panic("RowIterator() only makes sense for 2D grids")
 	}
@@ -246,21 +265,38 @@ func (grid Grid[T]) ColumnIterator() func() []T {
 	}
 }
 
-func (grid Grid[T]) Width() int {
+func (grid *Grid[T]) ColIteratorIter() iter.Iterator[[]T] {
+	if len(grid.dimensions) != 2 {
+		panic("RowIterator() only makes sense for 2D grids")
+	}
+	colIndex := 0
+	return func(ref **[]T) bool {
+		if colIndex < grid.ColumnCount() {
+			row := grid.Column(colIndex)
+			*ref = &row
+			colIndex++
+			return true
+		} else {
+			return false
+		}
+	}
+}
+
+func (grid *Grid[T]) Width() int {
 	if len(grid.dimensions) != 2 {
 		panic("Width() only makes sense for 2D grids")
 	}
 	return grid.ColumnCount()
 }
 
-func (grid Grid[T]) Height() int {
+func (grid *Grid[T]) Height() int {
 	if len(grid.dimensions) != 2 {
 		panic("Height() only makes sense for 2D grids")
 	}
 	return grid.RowCount()
 }
 
-func (grid Grid[T]) Transpose() Grid[T] {
+func (grid *Grid[T]) Transpose() Grid[T] {
 	if len(grid.dimensions) != 2 {
 		panic("Transpose() only makes sense for 2D grids")
 	}
