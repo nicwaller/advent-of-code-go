@@ -37,10 +37,9 @@ func parseFile() fileType {
 }
 
 func checkBingo(g *grid.Grid[int]) bool {
-	var line *[]int
-	next := iter.Chain(g.RowIteratorIter(), g.ColIteratorIter())
-	for next(&line) {
-		if f8l.Sum(line) == 500 {
+	lines := iter.Chain(g.RowIteratorIter(), g.ColIteratorIter())
+	for lines.Next() {
+		if f8l.Sum(lines.Value()) == 500 {
 			return true
 		}
 	}
@@ -51,8 +50,12 @@ func boardSum(g *grid.Grid[int]) int {
 	filterFn := func(v int) bool {
 		return v != 100 // 100 is a special sentinel number in this file
 	}
-	remainingValues := f8l.Filter[int](g.Values(), filterFn)
-	return f8l.Sum(&remainingValues)
+	sumFn := func(a int, b int) int {
+		return a + b
+	}
+	// TODO: move SumIter into iter package
+	return iter.ListIterator(g.Values()).Filter(filterFn).Reduce(sumFn, 0)
+	//return f8l.SumIter(f8l.FilterIter(iter.ListIterator(g.Values()), filterFn))
 }
 
 func part1(input fileType) int {

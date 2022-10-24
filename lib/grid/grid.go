@@ -198,21 +198,26 @@ func (grid *Grid[T]) RowIterator() func() []T {
 	}
 }
 
-func (grid *Grid[T]) RowIteratorIter() iter.Iterator[[]T] {
+func (grid *Grid[T]) RowIteratorIter() iter.Iterator[*[]T] {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
 		panic("RowIterator() only makes sense for 2D grids")
 	}
 	rowIndex := 0
-	return func(ref **[]T) bool {
-		if rowIndex < grid.RowCount() {
-			row := grid.Row(rowIndex)
-			*ref = &row
-			rowIndex++
-			return true
-		} else {
-			return false
-		}
+	var row []T
+	return iter.Iterator[*[]T]{
+		Next: func() bool {
+			if rowIndex < grid.RowCount() {
+				row = grid.Row(rowIndex)
+				rowIndex++
+				return true
+			} else {
+				return false
+			}
+		},
+		Value: func() *[]T {
+			return &row
+		},
 	}
 }
 
@@ -265,20 +270,26 @@ func (grid *Grid[T]) ColumnIterator() func() []T {
 	}
 }
 
-func (grid *Grid[T]) ColIteratorIter() iter.Iterator[[]T] {
+func (grid *Grid[T]) ColIteratorIter() iter.Iterator[*[]T] {
+	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
 		panic("RowIterator() only makes sense for 2D grids")
 	}
 	colIndex := 0
-	return func(ref **[]T) bool {
-		if colIndex < grid.ColumnCount() {
-			row := grid.Column(colIndex)
-			*ref = &row
-			colIndex++
-			return true
-		} else {
-			return false
-		}
+	var column []T
+	return iter.Iterator[*[]T]{
+		Next: func() bool {
+			if colIndex < grid.ColumnCount() {
+				column = grid.Column(colIndex)
+				colIndex++
+				return true
+			} else {
+				return false
+			}
+		},
+		Value: func() *[]T {
+			return &column
+		},
 	}
 }
 
