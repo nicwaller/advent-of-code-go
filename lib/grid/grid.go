@@ -198,14 +198,14 @@ func (grid *Grid[T]) Row(rowIndex int) []T {
 //	}
 //}
 
-func (grid *Grid[T]) RowIter() iter.Iterator[*[]T] {
+func (grid *Grid[T]) RowIter() iter.Iterator[[]T] {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
 		panic("RowIterator() only makes sense for 2D grids")
 	}
 	rowIndex := 0
 	var row []T
-	return iter.Iterator[*[]T]{
+	return iter.Iterator[[]T]{
 		Next: func() bool {
 			if rowIndex < grid.RowCount() {
 				row = grid.Row(rowIndex)
@@ -215,8 +215,8 @@ func (grid *Grid[T]) RowIter() iter.Iterator[*[]T] {
 				return false
 			}
 		},
-		Value: func() *[]T {
-			return &row
+		Value: func() []T {
+			return row
 		},
 	}
 }

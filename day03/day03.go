@@ -2,12 +2,12 @@ package main
 
 import (
 	"advent-of-code/lib/analyze"
+	"advent-of-code/lib/assert"
 	"advent-of-code/lib/grid"
+	"advent-of-code/lib/iter"
 	"advent-of-code/lib/set"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 )
 
 func main() {
@@ -28,14 +28,12 @@ func gammaRate(g grid.Grid[int]) int {
 	// Each bit in the gamma rate can be determined by
 	// finding the most common bit in the corresponding position
 	// of all numbers in the diagnostic report.
-	var mostPrevalentBits = make([]string, g.ColumnCount())
-	for c := 0; c < g.ColumnCount(); c++ {
-		column := g.Column(c)
-		mostPrevalentBits[c] = strconv.Itoa(analyze.MostCommon(column))
+	gammaRate := 0
+	bitPos := g.ColumnCount() - 1
+	for column := g.ColumnIter(); column.Next(); bitPos-- {
+		gammaRate |= analyze.MostCommon(*column.Value()) << bitPos
 	}
-	binStr := strings.Join(mostPrevalentBits, "")
-	gammaRate, _ := strconv.ParseInt(binStr, 2, 32)
-	return int(gammaRate) // 22 for sample, ?? for input
+	return gammaRate
 }
 
 func epsilonRate(gammaRate int, bits int) int {
@@ -46,17 +44,20 @@ func epsilonRate(gammaRate int, bits int) int {
 	for bit := 0; bit < bits; bit++ {
 		epsilonMask += 1 << bit
 	}
-	return gammaRate ^ epsilonMask
+	epsilonRate := gammaRate ^ epsilonMask
+	return epsilonRate
 }
 
 func part1(g grid.Grid[int]) int {
 	gammaRate := gammaRate(g)
+	assert.EqualAny(gammaRate, []int{22, 1816}, "gammaRate")
+
 	epsilonRate := epsilonRate(gammaRate, g.ColumnCount())
-	// The power consumption can then be found by multiplying the gamma rate by the epsilon rate.
+	assert.Equal(epsilonRate, 2279, "epsilonRate")
+
 	powerConsumption := gammaRate * epsilonRate
-	fmt.Printf("gammaRate: %d\n", gammaRate)
-	fmt.Printf("epsilonRate: %d\n", epsilonRate)
-	fmt.Printf("powerConsumption: %d\n", powerConsumption)
+	assert.Equal(powerConsumption, 4138664, "powerConsumption")
+
 	return powerConsumption
 }
 
@@ -65,16 +66,15 @@ func part2(g grid.Grid[int]) int {
 
 	// Set up a Set() of numbers for easy pruning later
 	var numbers = set.New[int]()
-	nextRow := g.RowIterator()
-	for row := nextRow(); row != nil; row = nextRow() {
-		binDigits := fmap[int, string](row, func(i int) string {
-			return strconv.Itoa(i)
-		})
-		binStr := strings.Join(binDigits, "")
-		binVal, _ := strconv.ParseInt(binStr, 2, 32)
-		numbers.Add(int(binVal))
-	}
 
+	decodeBinaryDigits := func(row []int) int {
+		sum := 0
+		for i := 0; i < len(row); i++ {
+			sum += row[len(row)-i-1] << i
+		}
+		return sum
+	}
+	iter.Map(g.RowIter(), decodeBinaryDigits).Each(numbers.Insert)
 	numbersCopy := set.Union(numbers)
 
 	// Start calculating oxygen generator rating
@@ -117,6 +117,7 @@ func part2(g grid.Grid[int]) int {
 		panic("should have been only 1 number left")
 	}
 	oxygenGeneratorRating := numbers.Items()[0]
+	assert.Equal(oxygenGeneratorRating, 2031, "oxygenGeneratorRating")
 
 	// Restore the original number set
 	numbers = numbersCopy
@@ -164,20 +165,10 @@ func part2(g grid.Grid[int]) int {
 		panic("should have been only 1 number left")
 	}
 	co2ScrubberRating := numbers.Items()[0]
+	assert.Equal(co2ScrubberRating, 2104, "co2ScrubberRating")
 
 	lifeSupportRating := oxygenGeneratorRating * co2ScrubberRating
+	assert.Equal(lifeSupportRating, 4273224, "lifeSupportRating")
 
-	fmt.Printf("oxygenGeneratorRating: %d\n", oxygenGeneratorRating)
-	fmt.Printf("co2ScrubberRating: %d\n", co2ScrubberRating)
-	fmt.Printf("lifeSupportRating: %d\n", lifeSupportRating)
-
-	return lifeSupportRating // 4273224 for the input
-}
-
-func fmap[I interface{}, O interface{}](items []I, mapFn func(I) O) []O {
-	var results []O = make([]O, len(items))
-	for _, item := range items {
-		results = append(results, mapFn(item))
-	}
-	return results
+	return lifeSupportRating
 }

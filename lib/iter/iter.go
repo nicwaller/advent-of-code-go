@@ -53,6 +53,22 @@ func Chain[T any](iters ...Iterator[T]) Iterator[T] {
 	}
 }
 
+func Map[I any, O any](iter Iterator[I], mapper func(orig I) O) Iterator[O] {
+	var val O
+	return Iterator[O]{
+		Next: func() bool {
+			if !iter.Next() {
+				return false
+			}
+			val = mapper(iter.Value())
+			return true
+		},
+		Value: func() O {
+			return val
+		},
+	}
+}
+
 func (iter Iterator[T]) Map(maps ...func(orig T) T) Iterator[T] {
 	var val T
 	return Iterator[T]{
@@ -239,6 +255,12 @@ func Chunk[T any](size int, iter Iterator[T]) Iterator[[]T] {
 		Value: func() []T {
 			return chunk
 		},
+	}
+}
+
+func (iter Iterator[T]) Each(do func(T)) {
+	for iter.Next() {
+		do(iter.Value())
 	}
 }
 
