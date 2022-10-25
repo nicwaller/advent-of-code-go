@@ -181,24 +181,24 @@ func (grid *Grid[T]) Row(rowIndex int) []T {
 	return grid.storage[offset : offset+grid.RowSize()]
 }
 
-func (grid *Grid[T]) RowIterator() func() []T {
-	// Assumes RowMajor storage
-	if len(grid.dimensions) != 2 {
-		panic("RowIterator() only makes sense for 2D grids")
-	}
-	rowIndex := 0
-	return func() []T {
-		if rowIndex < grid.RowCount() {
-			row := grid.Row(rowIndex)
-			rowIndex++
-			return row
-		} else {
-			return nil
-		}
-	}
-}
+//func (grid *Grid[T]) RowIterator() func() []T {
+//	// Assumes RowMajor storage
+//	if len(grid.dimensions) != 2 {
+//		panic("RowIterator() only makes sense for 2D grids")
+//	}
+//	rowIndex := 0
+//	return func() []T {
+//		if rowIndex < grid.RowCount() {
+//			row := grid.Row(rowIndex)
+//			rowIndex++
+//			return row
+//		} else {
+//			return nil
+//		}
+//	}
+//}
 
-func (grid *Grid[T]) RowIteratorIter() iter.Iterator[*[]T] {
+func (grid *Grid[T]) RowIter() iter.Iterator[*[]T] {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
 		panic("RowIterator() only makes sense for 2D grids")
@@ -254,23 +254,23 @@ func (grid *Grid[T]) Column(colIndex int) []T {
 	return column
 }
 
-func (grid *Grid[T]) ColumnIterator() func() []T {
-	if len(grid.dimensions) != 2 {
-		panic("RowIterator() only makes sense for 2D grids")
-	}
-	colIndex := 0
-	return func() []T {
-		if colIndex < grid.ColumnCount() {
-			row := grid.Column(colIndex)
-			colIndex++
-			return row
-		} else {
-			return nil
-		}
-	}
-}
+//func (grid *Grid[T]) ColumnIterator() func() []T {
+//	if len(grid.dimensions) != 2 {
+//		panic("RowIterator() only makes sense for 2D grids")
+//	}
+//	colIndex := 0
+//	return func() []T {
+//		if colIndex < grid.ColumnCount() {
+//			row := grid.Column(colIndex)
+//			colIndex++
+//			return row
+//		} else {
+//			return nil
+//		}
+//	}
+//}
 
-func (grid *Grid[T]) ColIteratorIter() iter.Iterator[*[]T] {
+func (grid *Grid[T]) ColumnIter() iter.Iterator[*[]T] {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {
 		panic("RowIterator() only makes sense for 2D grids")

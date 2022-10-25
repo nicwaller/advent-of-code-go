@@ -21,24 +21,20 @@ type fileType struct {
 
 func parseFile() fileType {
 	lines := util.ReadLines("input.txt")
-	drawStr, lines := util.TakeOne(lines)
-	drawStrs := strings.Split(drawStr, ",")
-	drawNums := f8l.Atoi(&drawStrs)
+	drawStrs := strings.Split(lines.TakeFirst(), ",")
 	var boards []grid.Grid[int]
-	for _, boardLines := range util.Chunk[string](lines, 6) {
-		boardStr := strings.Join(boardLines[1:], "\n")
-		board := grid.FromDelimitedStringAsInt(boardStr, ' ')
-		boards = append(boards, board)
+	for chunk := iter.Chunk(6, lines); chunk.Next(); {
+		boardStr := strings.Join(chunk.Value(), "\n")
+		boards = append(boards, grid.FromDelimitedStringAsInt(boardStr, ' '))
 	}
 	return fileType{
-		draws:  drawNums,
+		draws:  f8l.Atoi(&drawStrs),
 		boards: boards,
 	}
 }
 
 func checkBingo(g *grid.Grid[int]) bool {
-	lines := iter.Chain(g.RowIteratorIter(), g.ColIteratorIter())
-	for lines.Next() {
+	for lines := iter.Chain(g.RowIter(), g.ColumnIter()); lines.Next(); {
 		if f8l.Sum(lines.Value()) == 500 {
 			return true
 		}
@@ -53,19 +49,15 @@ func boardSum(g *grid.Grid[int]) int {
 	sumFn := func(a int, b int) int {
 		return a + b
 	}
-	// TODO: move SumIter into iter package
 	return iter.ListIterator(g.Values()).Filter(filterFn).Reduce(sumFn, 0)
-	//return f8l.SumIter(f8l.FilterIter(iter.ListIterator(g.Values()), filterFn))
 }
 
 func part1(input fileType) int {
 	for _, drawn := range input.draws {
 		for _, board := range input.boards {
-			if board.Replace(drawn, 100) > 0 {
-				if checkBingo(&board) {
-					finalScore := drawn * boardSum(&board)
-					return finalScore // 16716
-				}
+			if board.Replace(drawn, 100) > 0 && checkBingo(&board) {
+				finalScore := drawn * boardSum(&board)
+				return finalScore // 16716
 			}
 		}
 	}
@@ -75,26 +67,13 @@ func part1(input fileType) int {
 func part2(input fileType) int {
 	var lastWinScore int
 	alreadyBingo := make([]bool, len(input.boards))
-	for drawNumber, drawn := range input.draws {
-		_ = drawNumber
+	for _, drawn := range input.draws {
 		for boardId, board := range input.boards {
-			if alreadyBingo[boardId] {
-				continue
-			}
-			updates := board.Replace(drawn, 100)
-			changed := updates > 0
-			if changed {
-				if checkBingo(&board) {
-					//fmt.Printf("got a bingo! on draw %d\n", drawNumber)
-					lastWinScore = drawn * boardSum(&board)
-					alreadyBingo[boardId] = true
-				}
+			if !alreadyBingo[boardId] && board.Replace(drawn, 100) > 0 && checkBingo(&board) {
+				lastWinScore = drawn * boardSum(&board)
+				alreadyBingo[boardId] = true
 			}
 		}
-	}
-	if lastWinScore != 4880 {
-		fmt.Println(lastWinScore)
-		panic(4880)
 	}
 	return lastWinScore // 4880
 }

@@ -199,6 +199,21 @@ func (iter Iterator[T]) Take(count int) Iterator[T] {
 	}
 }
 
+func (iter Iterator[T]) TakeArray(count int) []T {
+	ret := make([]T, count)
+	for i := 0; i < count; i++ {
+		if !iter.Next() {
+			panic("nothing left to take")
+		}
+		ret[i] = iter.Value()
+	}
+	return ret
+}
+
+func (iter Iterator[T]) TakeFirst() T {
+	return iter.TakeArray(1)[0]
+}
+
 func (iter Iterator[T]) List() []T {
 	list := make([]T, 0)
 	for iter.Next() {
@@ -207,3 +222,25 @@ func (iter Iterator[T]) List() []T {
 	return list
 
 }
+
+// Cannot be implemented as a reciever method because of limits in generic typing system
+func Chunk[T any](size int, iter Iterator[T]) Iterator[[]T] {
+	chunk := make([]T, size)
+	return Iterator[[]T]{
+		Next: func() bool {
+			for i := 0; i < size; i++ {
+				if !iter.Next() {
+					return false
+				}
+				chunk[i] = iter.Value()
+			}
+			return true
+		},
+		Value: func() []T {
+			return chunk
+		},
+	}
+}
+
+// TODO: iter.Chunk(chunkSize int)
+// iter.Flatten() would be useful in a dynamically typed language, but I don't think it makes sense for Go.
