@@ -1,6 +1,9 @@
 package set
 
-import "fmt"
+import (
+	"advent-of-code/lib/iter"
+	"fmt"
+)
 
 type void interface{}
 
@@ -13,6 +16,14 @@ func New[T comparable](items ...T) Set[T] {
 	s.items = make(map[T]void)
 	for _, item := range items {
 		s.Insert(item)
+	}
+	return s
+}
+
+func FromIterable[T comparable](iter iter.Iterator[T]) Set[T] {
+	s := New[T]()
+	for iter.Next() {
+		s.Insert(iter.Value())
 	}
 	return s
 }

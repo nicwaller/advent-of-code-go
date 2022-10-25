@@ -65,8 +65,6 @@ func part2(g grid.Grid[int]) int {
 	bitSize := g.ColumnCount()
 
 	// Set up a Set() of numbers for easy pruning later
-	var numbers = set.New[int]()
-
 	decodeBinaryDigits := func(row []int) int {
 		sum := 0
 		for i := 0; i < len(row); i++ {
@@ -74,7 +72,7 @@ func part2(g grid.Grid[int]) int {
 		}
 		return sum
 	}
-	iter.Map(g.RowIter(), decodeBinaryDigits).Each(numbers.Insert)
+	numbers := set.FromIterable(iter.Map(g.RowIter(), decodeBinaryDigits))
 	numbersCopy := set.Union(numbers)
 
 	// Start calculating oxygen generator rating
