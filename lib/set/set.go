@@ -37,27 +37,49 @@ func Intersection[T comparable](sets ...Set[T]) Set[T] {
 	return intersection
 }
 
-func (set *Set[T]) Add(val T) {
+// Compare is like the `comm` program that finds common lines between files
+func Compare[T comparable](left Set[T], right Set[T]) (Set[T], Set[T], Set[T]) {
+	onlyLeft := New[T]()
+	inBoth := New[T]()
+	onlyRight := New[T]()
+	for k := range left.items {
+		if right.Contains(k) {
+			inBoth.Add(k)
+		} else {
+			onlyLeft.Add(k)
+		}
+	}
+	for k := range right.items {
+		if inBoth.Contains(k) {
+			// well... it should already be in there
+		} else {
+			onlyRight.Add(k)
+		}
+	}
+	return onlyLeft, inBoth, onlyRight
+}
+
+func (set Set[T]) Add(val T) {
 	set.Insert(val)
 }
 
-func (set *Set[T]) Insert(val T) {
+func (set Set[T]) Insert(val T) {
 	// maybe alias this as Add()?
 	var empty struct{}
 	set.items[val] = empty
 }
 
-func (set *Set[T]) Extend(items ...T) {
+func (set Set[T]) Extend(items ...T) {
 	for _, item := range items {
 		set.Insert(item)
 	}
 }
 
-func (set *Set[T]) Remove(val T) {
+func (set Set[T]) Remove(val T) {
 	delete(set.items, val)
 }
 
-func (set *Set[T]) Filter(keep func(item T) bool) {
+func (set Set[T]) Filter(keep func(item T) bool) {
 	for k := range set.items {
 		if !keep(k) {
 			set.Remove(k)
@@ -65,17 +87,17 @@ func (set *Set[T]) Filter(keep func(item T) bool) {
 	}
 }
 
-func (set *Set[T]) Contains(val T) bool {
+func (set Set[T]) Contains(val T) bool {
 	return set.Has(val)
 }
 
-func (set *Set[T]) Has(val T) bool {
+func (set Set[T]) Has(val T) bool {
 	// maybe alias this as Contains() ?
 	_, ok := set.items[val]
 	return ok
 }
 
-func (set *Set[T]) Items() []T {
+func (set Set[T]) Items() []T {
 	keys := make([]T, len(set.items))
 	i := 0
 	for k := range set.items {
@@ -85,11 +107,11 @@ func (set *Set[T]) Items() []T {
 	return keys
 }
 
-func (set *Set[T]) Size() int {
+func (set Set[T]) Size() int {
 	return len(set.items)
 }
 
 //goland:noinspection GoMixedReceiverTypes
-func (set *Set[T]) String() string {
+func (set Set[T]) String() string {
 	return fmt.Sprint(set.Items())
 }
