@@ -7,9 +7,10 @@ func NthBit(n int, value int) bool {
 	// 01101001 <- value
 	// 76543210 <- bit positions
 	mask := 1 << n
-	return value & mask
+	return (value & mask) == 1
 }
 
-func CountBits(value int) int {
-
+func NthBitI(n int, value int) int {
+	mask := 1 << n
+	return (value & mask) >> n
 }

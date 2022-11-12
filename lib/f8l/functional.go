@@ -1,10 +1,5 @@
 package f8l
 
-import (
-	"advent-of-code/lib/util"
-	"strconv"
-)
-
 func Map[I interface{}, O interface{}](items *[]I, mapFn func(I) O) []O {
 	var results = make([]O, len(*items))
 	for i, item := range *items {
@@ -13,13 +8,13 @@ func Map[I interface{}, O interface{}](items *[]I, mapFn func(I) O) []O {
 	return results
 }
 
-func Atoi(items *[]string) []int {
-	return Map[string, int](items, util.UnsafeAtoi)
-}
-
-func Itoa(items *[]int) []string {
-	return Map[int, string](items, strconv.Itoa)
-}
+//func Atoi(items *[]string) []int {
+//	return Map[string, int](items, util.UnsafeAtoi)
+//}
+//
+//func Itoa(items *[]int) []string {
+//	return Map[int, string](items, strconv.Itoa)
+//}
 
 func Reduce[T comparable](values *[]T, start T, reduce func(a T, b T) T) T {
 	result := start

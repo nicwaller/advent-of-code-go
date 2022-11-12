@@ -118,6 +118,11 @@ func (set Set[T]) Items() []T {
 	return keys
 }
 
+func (set Set[T]) Iterator() iter.Iterator[T] {
+	items := set.Items()
+	return iter.ListIterator(&items)
+}
+
 func (set Set[T]) Size() int {
 	return len(set.items)
 }

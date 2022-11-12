@@ -2,7 +2,15 @@ package assert
 
 import "fmt"
 
-func Equal[T comparable](actual T, expected T, name string) {
+func Equal[T comparable](actual T, expected T) {
+	if actual == expected {
+		return
+	}
+	panic(fmt.Sprintf("Failed Assertion: Actual %v != Expected %v",
+		actual, expected))
+}
+
+func EqualNamed[T comparable](actual T, expected T, name string) {
 	if actual == expected {
 		return
 	}

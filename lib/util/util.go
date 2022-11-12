@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func UnsafeAtoi(s string) int {
@@ -81,5 +82,33 @@ func ReadLines(filename string) iter.Iterator[string] {
 		Value: func() string {
 			return line
 		},
+	}
+}
+
+// NumberFields is like strings.Fields() but it gets all the integers
+func NumberFields(s string) []int {
+	stringFields := strings.FieldsFunc(s, func(r rune) bool {
+		return r < '0' || r > '9'
+	})
+	intFields := make([]int, len(stringFields))
+	for i := 0; i < len(intFields); i++ {
+		intFields[i], _ = strconv.Atoi(stringFields[i])
+	}
+	return intFields
+}
+
+func IntMin(a int, b int) int {
+	if a < b {
+		return a
+	} else {
+		return b
+	}
+}
+
+func IntMax(a int, b int) int {
+	if a > b {
+		return a
+	} else {
+		return b
 	}
 }
