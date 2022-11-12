@@ -1,7 +1,6 @@
 package grid
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -67,7 +66,6 @@ func TestSlice_Cells(t *testing.T) {
 	}
 }
 
-func TestLine(t *testing.T) {
-	point := Line([]int{0}, []int{5}).List()
-	fmt.Println(point)
-}
+//func TestLine(t *testing.T) {
+//	point := Line([]int{0}, []int{5}).List()
+//}

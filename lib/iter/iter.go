@@ -272,5 +272,16 @@ func (iter Iterator[T]) Each(do func(T)) {
 	}
 }
 
+func Transform[I any, O any](iter Iterator[I], fn func(i I) O) Iterator[O] {
+	return Iterator[O]{
+		Next: func() bool {
+			return iter.Next()
+		},
+		Value: func() O {
+			return fn(iter.Value())
+		},
+	}
+}
+
 // TODO: iter.Chunk(chunkSize int)
 // iter.Flatten() would be useful in a dynamically typed language, but I don't think it makes sense for Go.

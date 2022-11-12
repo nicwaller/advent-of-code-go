@@ -54,11 +54,12 @@ func FromDelimitedString(s string, delim rune) Grid[string] {
 }
 
 func FromStringAsInt(s string) Grid[int] {
+	orig := FromString(s)
 	unsafeAtoi := func(s string) int {
 		res, _ := strconv.Atoi(s)
 		return res
 	}
-	return TransformGrid(FromString(s), unsafeAtoi)
+	return TransformGrid(orig, unsafeAtoi)
 }
 
 func FromDelimitedStringAsInt(s string, delim rune) Grid[int] {

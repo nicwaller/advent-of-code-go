@@ -34,6 +34,20 @@ func TestOffsetComplex(t *testing.T) {
 	expectCell(5, []int{11, 12})
 }
 
+func TestGrid_IsInGrid(t *testing.T) {
+	g := NewGrid[bool](3, 3)
+	centroid := Cell{1, 1}
+	expect[bool](t, true, g.IsInGrid(centroid), "centroid in grid")
+
+	for _, n := range g.NeighboursAdjacent(centroid, true) {
+		expect(t, true, g.IsInGrid(n), "neighbour in grid")
+	}
+
+	corner := Cell{0, 0}
+	cornerNeighbours := g.NeighboursAdjacent(corner, false)
+	expect(t, 2, len(cornerNeighbours), "number of neighbours for corner cell")
+}
+
 func expect[T comparable](t *testing.T, expected T, actual T, name string) {
 	if expected != actual {
 		t.Errorf("%s:\nExpected: %v\nActual: %v\n", name, expected, actual)

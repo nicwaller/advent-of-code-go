@@ -1,5 +1,7 @@
 package grid
 
+import "advent-of-code/lib/iter"
+
 type Grid[T comparable] struct {
 	storage []T
 	// Grid invariant: len(offsets) == len(dimensions)
@@ -53,6 +55,59 @@ func (grid *Grid[T]) CellFromOffset(offset int) Cell {
 	return c
 }
 
+func (grid *Grid[T]) Get(cell Cell) T {
+	return grid.storage[grid.OffsetFromCell(cell)]
+}
+
 func (grid *Grid[T]) Values() *[]T {
 	return &grid.storage
+}
+
+func (grid *Grid[T]) NeighboursAdjacent(c Cell, includeCentre bool) []Cell {
+	possibilities := make([]Cell, 0)
+	// this is hard to write n-dimensionally!
+	nDimensions := len(grid.dimensions)
+	switch nDimensions {
+	case 0:
+		panic("grid cannot have 0 dimensions")
+	case 1:
+		possibilities = []Cell{
+			[]int{c[0] - 1},
+			[]int{c[0] + 1},
+		}
+	case 2:
+		possibilities = []Cell{
+			[]int{c[0] - 1, c[1]},
+			[]int{c[0] + 1, c[1]},
+			[]int{c[0], c[1] - 1},
+			[]int{c[0], c[1] + 1},
+		}
+	case 3:
+		possibilities = []Cell{
+			[]int{c[0], c[1], c[2] - 1},
+			[]int{c[0], c[1], c[2] + 1},
+			[]int{c[0], c[1] - 1, c[2]},
+			[]int{c[0], c[1] + 1, c[2]},
+			[]int{c[0] - 1, c[1], c[2]},
+			[]int{c[0] + 1, c[1], c[2]},
+		}
+	default:
+		panic("neighbours not implemented for higher dimensions")
+	}
+	if includeCentre {
+		possibilities = append(possibilities, c)
+	}
+	return iter.ListIterator[Cell](&possibilities).Filter(grid.IsInGrid).List()
+}
+
+func (grid *Grid[T]) IsInGrid(c Cell) bool {
+	for dim, pos := range c {
+		if pos < grid.offsets[dim] {
+			return false
+		}
+		if pos >= grid.offsets[dim]+grid.dimensions[dim] {
+			return false
+		}
+	}
+	return true
 }

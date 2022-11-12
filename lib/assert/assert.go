@@ -2,6 +2,14 @@ package assert
 
 import "fmt"
 
+func NotEqual[T comparable](actual T, expected T) {
+	if actual != expected {
+		return
+	}
+	panic(fmt.Sprintf("Failed Assertion: Actual %v == Expected %v",
+		actual, expected))
+}
+
 func Equal[T comparable](actual T, expected T) {
 	if actual == expected {
 		return

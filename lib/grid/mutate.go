@@ -60,6 +60,8 @@ func TransformGrid[T comparable, Z comparable](g Grid[T], transform func(val T) 
 	return Grid[Z]{
 		storage:    newStorage,
 		dimensions: g.dimensions,
+		offsets:    g.offsets,
+		jumps:      g.jumps,
 	}
 }
 
@@ -83,4 +85,13 @@ func (grid *Grid[T]) Replace(needle T, replacement T) int {
 		}
 	}
 	return replacements
+}
+
+// FloodFill returns number of changed cells
+func (grid *Grid[T]) FloodFill(origin Cell, selFn func(v T) bool, fill T) int {
+	sel := grid.FloodSelect(origin, selFn)
+	for _, cell := range sel {
+		grid.storage[grid.OffsetFromCell(cell)] = fill
+	}
+	return len(sel)
 }
