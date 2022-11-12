@@ -59,6 +59,10 @@ func (grid *Grid[T]) Get(cell Cell) T {
 	return grid.storage[grid.OffsetFromCell(cell)]
 }
 
+func (grid *Grid[T]) Set(cell Cell, v T) {
+	grid.storage[grid.OffsetFromCell(cell)] = v
+}
+
 func (grid *Grid[T]) Values() *[]T {
 	return &grid.storage
 }
@@ -90,6 +94,38 @@ func (grid *Grid[T]) NeighboursAdjacent(c Cell, includeCentre bool) []Cell {
 			[]int{c[0], c[1] + 1, c[2]},
 			[]int{c[0] - 1, c[1], c[2]},
 			[]int{c[0] + 1, c[1], c[2]},
+		}
+	default:
+		panic("neighbours not implemented for higher dimensions")
+	}
+	if includeCentre {
+		possibilities = append(possibilities, c)
+	}
+	return iter.ListIterator[Cell](&possibilities).Filter(grid.IsInGrid).List()
+}
+
+func (grid *Grid[T]) NeighboursSurround(c Cell, includeCentre bool) []Cell {
+	possibilities := make([]Cell, 0)
+	nDimensions := len(grid.dimensions)
+	switch nDimensions {
+	case 0:
+		panic("grid cannot have 0 dimensions")
+	case 1:
+		possibilities = []Cell{
+			[]int{c[0] - 1},
+			[]int{c[0] + 1},
+		}
+	case 2:
+		possibilities = []Cell{
+			[]int{c[0] - 1, c[1] - 1},
+			[]int{c[0] - 1, c[1] + 0},
+			[]int{c[0] - 1, c[1] + 1},
+			[]int{c[0] + 0, c[1] - 1},
+			//[]int{c[0] + 0, c[1] + 0},
+			[]int{c[0] + 0, c[1] + 1},
+			[]int{c[0] + 1, c[1] - 1},
+			[]int{c[0] + 1, c[1] + 0},
+			[]int{c[0] + 1, c[1] + 1},
 		}
 	default:
 		panic("neighbours not implemented for higher dimensions")
