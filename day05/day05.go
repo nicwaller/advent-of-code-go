@@ -12,54 +12,44 @@ func main() {
 	fmt.Printf("Part 2: %d\n", part2(parseFile()))
 }
 
-type fileType []grid.Rect2D
+type fileType []grid.Cell
 
 func parseFile() fileType {
-	clouds := make([]grid.Rect2D, 0)
+	clouds := make([]grid.Cell, 0)
 	for lines := util.ReadLines("input.txt"); lines.Next(); {
 		f := util.NumberFields(lines.Value())
-		clouds = append(clouds, grid.Rect2D{
-			Bounds: [2]grid.Coord2D{
-				grid.Coord2D{
-					X: f[0],
-					Y: f[1],
-				},
-				grid.Coord2D{
-					X: f[2],
-					Y: f[3],
-				},
-			},
-		})
+		clouds = append(clouds,
+			grid.Cell{f[0], f[1]},
+			grid.Cell{f[2], f[3]},
+		)
 	}
 	return clouds
 }
 
 func part1(input fileType) int {
-	origin := grid.MakeRect(0, 0, 0, 0)
-	union := grid.RectUnion(input...)
-	extents := grid.RectUnion(origin, union)
-	fmt.Println(extents)
-	g := grid.NewGrid[int](extents.Bounds[1].X+1, extents.Bounds[1].Y+1)
-	for _, cloud := range input {
-		// TODO: skip diagonal lines
-		x0 := cloud.Bounds[0].X
-		y0 := cloud.Bounds[0].Y
-		x1 := cloud.Bounds[1].X
-		y1 := cloud.Bounds[1].Y
-		if !(x0 == x1 || y0 == y1) {
+	extents := grid.SliceEnclosing(input...)
+	g := grid.NewGridFromSlice[uint8](extents)
+	incr := func(i uint8) uint8 { return i + 1 }
+	for i := 0; i < len(input); i += 2 {
+		// skip lines that aren't horizontal or vertical
+		if !(input[i][0] == input[i+1][0] || input[i][1] == input[i+1][1]) {
 			continue
 		}
-		s := grid.SliceEnclosing(grid.Cell{y0, x0}, grid.Cell{y1, x1})
-		incr := func(i int) int { return i + 1 }
-		g.MapSlice(incr, s)
+		g.MapIter(incr, grid.Line(input[i], input[i+1]))
 	}
-	overlaps := g.Filter(func(v int) bool { return v >= 2 }).List()
-	fmt.Println(overlaps)
-	fmt.Println(len(overlaps))
-	assert.EqualNamed(len(overlaps), 5585, "number of overlaps")
-	return len(overlaps)
+	overlaps := g.Filter(func(v uint8) bool { return v >= 2 }).Count()
+	assert.Equal(overlaps, 5585)
+	return overlaps
 }
 
 func part2(input fileType) int {
-	return -1
+	extents := grid.SliceEnclosing(input...)
+	g := grid.NewGridFromSlice[uint8](extents)
+	incr := func(i uint8) uint8 { return i + 1 }
+	for i := 0; i < len(input); i += 2 {
+		g.MapIter(incr, grid.Line(input[i], input[i+1]))
+	}
+	overlaps := g.Filter(func(v uint8) bool { return v >= 2 }).Count()
+	assert.Equal(overlaps, 17193)
+	return overlaps
 }

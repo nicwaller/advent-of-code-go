@@ -1,5 +1,7 @@
 package grid
 
+import "advent-of-code/lib/iter"
+
 // TODO: FillRect
 
 func (grid *Grid[T]) Fill(fillValue T) {
@@ -14,7 +16,17 @@ func (grid *Grid[T]) FillSlice(fillValue T, s Slice) {
 	}
 }
 
-func (grid *Grid[T]) Map(fn func(v T) T) {
+func (grid *Grid[T]) MapIter(mapFn func(v T) T, cellIter iter.Iterator[Cell]) {
+	for cellIter.Next() {
+		offset := grid.OffsetFromCell(cellIter.Value())
+		grid.storage[offset] = mapFn(grid.storage[offset])
+	}
+	//for i, item := range grid.storage {
+	//	grid.storage[i] = mapFn(item)
+	//}
+}
+
+func (grid *Grid[T]) MapAll(fn func(v T) T) {
 	for i, item := range grid.storage {
 		grid.storage[i] = fn(item)
 	}

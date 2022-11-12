@@ -12,6 +12,68 @@ type Range struct {
 	terminus int // exclusive
 }
 
+// Dimensions needs to be TODO: tested
+func (slice Slice) Dimensions() []int {
+	dim := make([]int, len(slice))
+	for i, z := range slice {
+		dim[i] = IntAbs(z.terminus-z.origin) + 1
+	}
+	return dim
+}
+
+func IntAbs(x int) int {
+	if x < 0 {
+		return 0 - x
+	} else {
+		return x
+	}
+}
+
+func Line(a Cell, b Cell) iter.Iterator[Cell] {
+	unitize := func(f int, g int) int {
+		// can this be done more cleverly with bit shift?
+		switch {
+		case f > g:
+			return 1
+		case f == g:
+			return 0
+		case f < g:
+			return -1
+		}
+		panic("impossible")
+	}
+	curPos := make([]int, len(a))
+	nextPos := make([]int, len(a))
+	copy(curPos, a)
+	copy(nextPos, a)
+	done := false
+	return iter.Iterator[Cell]{
+		Next: func() bool {
+			copy(curPos, nextPos)
+			for d := 0; d < len(a); d++ {
+				nextPos[d] += unitize(b[d], a[d])
+			}
+			if done {
+				return false
+			}
+			done = true
+			for d := 0; d < len(a); d++ {
+				if curPos[d] != b[d] {
+					done = false
+				}
+			}
+			return true
+		},
+		Value: func() Cell {
+			// Yes, this copying and allocation is necessary
+			// so that List() works correctly on the iterator
+			ret := make([]int, len(curPos))
+			copy(ret, curPos)
+			return ret
+		},
+	}
+}
+
 func SliceEnclosing(cells ...Cell) Slice {
 	nDimensions := len(cells[0])
 	slice := make([]Range, nDimensions)

@@ -10,6 +10,15 @@ type Grid[T comparable] struct {
 
 type Cell []int
 
+func IsZeroCell(c Cell) bool {
+	for _, v := range c {
+		if v != 0 {
+			return false
+		}
+	}
+	return true
+}
+
 func (grid *Grid[T]) recalculateJumps() {
 	grid.jumps = make([]int, len(grid.dimensions))
 	jumpSize := 1
@@ -37,6 +46,9 @@ func (grid *Grid[T]) CellFromOffset(offset int) Cell {
 	for d, j := range grid.jumps {
 		c[d] = offset / j
 		offset -= c[d] * j
+	}
+	for d, ofs := range grid.offsets {
+		c[d] += ofs
 	}
 	return c
 }

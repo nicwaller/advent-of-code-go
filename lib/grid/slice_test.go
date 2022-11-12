@@ -63,7 +63,11 @@ func TestSliceNonzero(t *testing.T) {
 func TestSlice_Cells(t *testing.T) {
 	slice := SliceEnclosing([]int{1, 1}, []int{1, 1})
 	for iter := slice.Cells(); iter.Next(); {
-		fmt.Println(iter.Value())
 		time.Sleep(200 * time.Millisecond)
 	}
+}
+
+func TestLine(t *testing.T) {
+	point := Line([]int{0}, []int{5}).List()
+	fmt.Println(point)
 }

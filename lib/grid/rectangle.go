@@ -3,7 +3,6 @@ package grid
 import (
 	"advent-of-code/lib/iter"
 	"advent-of-code/lib/util"
-	"fmt"
 )
 
 // TODO: should Rect be inclusive on both sides?
@@ -55,7 +54,7 @@ func (r Rect2D) Cells() iter.Iterator[Coord2D] {
 			if y > rNormal.Bounds[1].Y {
 				return false
 			}
-			fmt.Printf("x: %d, y: %d\n", x, y)
+			//fmt.Printf("x: %d, y: %d\n", x, y)
 			return true
 		},
 		Value: func() Coord2D {

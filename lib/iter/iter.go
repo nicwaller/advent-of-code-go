@@ -239,6 +239,14 @@ func (iter Iterator[T]) List() []T {
 
 }
 
+func (iter Iterator[T]) Count() int {
+	c := 0
+	for iter.Next() {
+		c++
+	}
+	return c
+}
+
 // Cannot be implemented as a reciever method because of limits in generic typing system
 func Chunk[T any](size int, iter Iterator[T]) Iterator[[]T] {
 	chunk := make([]T, size)

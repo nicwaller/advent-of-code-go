@@ -1,6 +1,8 @@
 package grid
 
-import "advent-of-code/lib/iter"
+import (
+	"advent-of-code/lib/iter"
+)
 
 func (grid *Grid[T]) Cells() iter.Iterator[Cell] {
 	offset := -1
@@ -8,6 +10,12 @@ func (grid *Grid[T]) Cells() iter.Iterator[Cell] {
 	return iter.Iterator[Cell]{
 		Next: func() bool {
 			offset++
+			if offset < 0 {
+				panic("offset must never be negative") // DEBUG
+			}
+			if offset > len(grid.storage) {
+				panic("offset is too high")
+			}
 			curCell = grid.CellFromOffset(offset)
 			return offset < len(grid.storage)
 		},

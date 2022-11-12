@@ -83,3 +83,11 @@ func NewGrid[T comparable](dimensions ...int) Grid[T] {
 	g.recalculateJumps()
 	return g
 }
+
+func NewGridFromSlice[T comparable](slice Slice) Grid[T] {
+	g := NewGrid[T](slice.Dimensions()...)
+	for i, _ := range slice {
+		g.offsets[i] = slice[i].origin
+	}
+	return g
+}
