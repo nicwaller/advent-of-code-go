@@ -2,8 +2,12 @@ package main
 
 import (
 	"advent-of-code/lib/aoc"
+	"advent-of-code/lib/assert"
+	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/iter"
+	"advent-of-code/lib/util"
 	"fmt"
+	"math"
 	"strings"
 )
 
@@ -116,7 +120,7 @@ func decodeAllPackets(ite iter.Iterator[string]) []packet {
 func part1(input string) int {
 	p, _ := decodePacket(iter.StringIterator(input, 1))
 	sumPacketVersions := 0
-	prettyPrintPacket(p, 0)
+	//prettyPrintPacket(p, 0)
 	depthFirstTraversal(p, func(p packet) {
 		sumPacketVersions += p.version
 	})
@@ -124,8 +128,11 @@ func part1(input string) int {
 }
 
 func part2(input string) int {
-	//assert.EqualAny(basinMultiplyResult, []int{1134, 1023660}, "basinMultiplyResult")
-	return -1
+	p, _ := decodePacket(iter.StringIterator(input, 1))
+	ret := evalPacket(p)
+	assert.NotEqual(ret, 1264485568359)
+	assert.Equal(ret, 1264485568252)
+	return evalPacket(p)
 }
 
 func prettyPrintPacket(p packet, indent int) {
@@ -140,5 +147,41 @@ func depthFirstTraversal(p packet, fn func(p packet)) {
 	fn(p)
 	for _, s := range p.sub {
 		depthFirstTraversal(s, fn)
+	}
+}
+
+func evalPacket(p packet) int {
+	operands := f8l.Map[packet, int](&p.sub, evalPacket)
+	switch p.typeid {
+	case 0: // sum
+		return f8l.Reduce(&operands, 0, func(a int, b int) int { return a + b })
+	case 1: // product
+		return f8l.Reduce(&operands, 1, func(a int, b int) int { return a * b })
+	case 2: // min
+		return f8l.Reduce(&operands, math.MaxInt32, util.IntMin)
+	case 3: // max
+		return f8l.Reduce(&operands, math.MinInt32, util.IntMax)
+	case 4: // literal
+		return p.operand
+	case 5: // greater than
+		if operands[0] > operands[1] {
+			return 1
+		} else {
+			return 0
+		}
+	case 6: // less than
+		if operands[0] < operands[1] {
+			return 1
+		} else {
+			return 0
+		}
+	case 7: // equal to
+		if operands[0] == operands[1] {
+			return 1
+		} else {
+			return 0
+		}
+	default:
+		panic(p.typeid)
 	}
 }
