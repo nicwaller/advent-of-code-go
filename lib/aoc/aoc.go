@@ -6,6 +6,7 @@ import (
 	"advent-of-code/lib/util"
 	"fmt"
 	"os"
+	"strings"
 )
 
 var filename = "input.txt"
@@ -32,7 +33,7 @@ func InputBytes() []byte {
 
 //goland:noinspection GoUnusedExportedFunction
 func InputString() string {
-	return string(InputBytes())
+	return strings.TrimSpace(string(InputBytes()))
 }
 
 //goland:noinspection GoUnusedExportedFunction

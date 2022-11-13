@@ -1,11 +1,26 @@
 package iter
 
+import "errors"
+
 // I really like itertools -NW
 // https://docs.python.org/3/library/itertools.html
 
 type Iterator[T any] struct {
 	Next  func() bool
 	Value func() T
+}
+
+func StringIterator(s string, step int) Iterator[string] {
+	offset := -1
+	return Iterator[string]{
+		Next: func() bool {
+			offset += step
+			return offset+step <= len(s)
+		},
+		Value: func() string {
+			return s[offset : offset+step]
+		},
+	}
 }
 
 func ListIterator[T any](list *[]T) Iterator[T] {
@@ -215,19 +230,20 @@ func (iter Iterator[T]) Take(count int) Iterator[T] {
 	}
 }
 
-func (iter Iterator[T]) TakeArray(count int) []T {
+func (iter Iterator[T]) TakeArray(count int) ([]T, error) {
 	ret := make([]T, count)
 	for i := 0; i < count; i++ {
 		if !iter.Next() {
-			panic("nothing left to take")
+			return []T{}, errors.New("nothing left to take")
 		}
 		ret[i] = iter.Value()
 	}
-	return ret
+	return ret, nil
 }
 
 func (iter Iterator[T]) TakeFirst() T {
-	return iter.TakeArray(1)[0]
+	tk, _ := iter.TakeArray(1)
+	return tk[0]
 }
 
 func (iter Iterator[T]) TakeWhile(condition func(v T) bool) Iterator[T] {
