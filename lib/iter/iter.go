@@ -230,6 +230,15 @@ func (iter Iterator[T]) Take(count int) Iterator[T] {
 	}
 }
 
+func (iter Iterator[T]) Skip(count int) error {
+	for i := 0; i < count; i++ {
+		if !iter.Next() {
+			return errors.New("nothing left to skip")
+		}
+	}
+	return nil
+}
+
 func (iter Iterator[T]) TakeArray(count int) ([]T, error) {
 	ret := make([]T, count)
 	for i := 0; i < count; i++ {

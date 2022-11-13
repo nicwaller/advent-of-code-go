@@ -3,6 +3,7 @@ package main
 import (
 	"advent-of-code/lib/analyze"
 	"advent-of-code/lib/aoc"
+	"advent-of-code/lib/assert"
 	"advent-of-code/lib/iter"
 	"advent-of-code/lib/util"
 	"fmt"
@@ -52,7 +53,7 @@ func polymerize(template string, rules map[string]string) string {
 }
 
 func part1(input fileType) int {
-	fmt.Println(input)
+	//fmt.Println(input)
 	cur := input.polymerTemplate
 	for step := 1; step <= 10; step++ {
 		cur = polymerize(cur, input.rules)
@@ -68,7 +69,71 @@ func part1(input fileType) int {
 	return most - least
 }
 
-func part2(g fileType) int {
-	//assert.EqualAny(basinMultiplyResult, []int{1134, 1023660}, "basinMultiplyResult")
-	return -1
+func part2(input fileType) int {
+	//fmt.Println(input)
+
+	// prepare the empty map of pairs
+	pairs := make(map[string]int)
+	for pair, _ := range input.rules {
+		pairs[pair] = 0
+	}
+
+	// re-interpret the template as a set of pairs
+	for i := 0; i < len(input.polymerTemplate)-1; i++ {
+		pair := input.polymerTemplate[i : i+2]
+		pairs[pair]++
+	}
+
+	iterate := func(curPairs map[string]int) map[string]int {
+		// make a deep copy
+		newPairs := make(map[string]int)
+		for pair, count := range curPairs {
+			newPairs[pair] = count
+		}
+
+		// populate the next generation
+		for pair, count := range curPairs {
+			middlechar := input.rules[pair]
+			newPairs[pair] -= count
+			leftPair := string(pair[0]) + middlechar
+			rightPair := middlechar + string(pair[1])
+			newPairs[leftPair] += count
+			newPairs[rightPair] += count
+		}
+
+		return newPairs
+	}
+
+	//fmt.Println(pairs)
+	for step := 1; step <= 40; step++ {
+		pairs = iterate(pairs)
+		//fmt.Println(pairs)
+	}
+
+	aggr := func(m map[string]int) map[string]int {
+		mm := make(map[string]int)
+		for k, v := range m {
+			x := string(k[0])
+			mm[x] += v
+		}
+		lastChar := input.polymerTemplate[len(input.polymerTemplate)-1]
+		mm[string(lastChar)]++
+		return mm
+	}
+	stat := aggr(pairs)
+	//fmt.Println(stat)
+
+	most := math.MinInt64
+	least := math.MaxInt64
+	for _, v := range stat {
+		most = util.IntMax(most, v)
+		least = util.IntMin(least, v)
+
+	}
+	diff := most - least
+	fmt.Printf("most: %v, least: %v, diff: %v\n", most, least, diff)
+	assert.NotEqual(diff, 2745)
+	assert.NotEqual(diff, 4397257877492)
+	assert.EqualAny(diff, []int{2188189693529, 3420801168962}, "diff")
+	return most - least
 }
