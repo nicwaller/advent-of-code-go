@@ -83,6 +83,9 @@ func (grid *Grid[T]) Height() int {
 }
 
 func (grid *Grid[T]) Transpose() Grid[T] {
+	// TODO: implement this more cheaply?
+	// just invert the dimensions and return a new grid
+	// either leave the storage in place, or make a linear copy.
 	if len(grid.dimensions) != 2 {
 		panic("Transpose() only makes sense for 2D grids")
 	}

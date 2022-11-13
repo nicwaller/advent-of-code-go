@@ -8,15 +8,24 @@ import (
 type Slice []Range
 
 type Range struct {
-	origin   int // inclusive
-	terminus int // exclusive
+	Origin   int // inclusive
+	Terminus int // exclusive
+}
+
+func (slice Slice) Copy() Slice {
+	copy := make([]Range, len(slice))
+	for d := 0; d < len(slice); d++ {
+		copy[d].Origin = slice[d].Origin
+		copy[d].Terminus = slice[d].Terminus
+	}
+	return copy
 }
 
 // Dimensions needs to be TODO: tested
 func (slice Slice) Dimensions() []int {
 	dim := make([]int, len(slice))
 	for i, z := range slice {
-		dim[i] = IntAbs(z.terminus-z.origin) + 1
+		dim[i] = IntAbs(z.Terminus-z.Origin) + 1
 	}
 	return dim
 }
@@ -80,14 +89,14 @@ func SliceEnclosing(cells ...Cell) Slice {
 	// initialize
 	c := cells[0]
 	for d := 0; d < nDimensions; d++ {
-		slice[d].origin = c[d]
-		slice[d].terminus = c[d] + 1
+		slice[d].Origin = c[d]
+		slice[d].Terminus = c[d] + 1
 	}
 	// loop
 	for _, c := range cells {
 		for d := 0; d < nDimensions; d++ {
-			slice[d].origin = util.IntMin(slice[d].origin, c[d])
-			slice[d].terminus = util.IntMax(slice[d].terminus, c[d]+1)
+			slice[d].Origin = util.IntMin(slice[d].Origin, c[d])
+			slice[d].Terminus = util.IntMax(slice[d].Terminus, c[d])
 		}
 	}
 	return slice
@@ -120,7 +129,7 @@ func SliceEnclosing(cells ...Cell) Slice {
 func (slice Slice) Origin() Cell {
 	c := make([]int, len(slice))
 	for i := 0; i < len(c); i++ {
-		c[i] = slice[i].origin
+		c[i] = slice[i].Origin
 	}
 	return c
 }
@@ -133,12 +142,12 @@ func (slice Slice) Cells() iter.Iterator[Cell] {
 	current[len(current)-1]--
 	carry := func() {
 		for d := len(slice) - 1; d >= 0; d-- {
-			if current[d] == slice[d].terminus {
+			if current[d] == slice[d].Terminus {
 				if d == 0 {
 					current = nil
 					return
 				}
-				current[d] = slice[d].origin
+				current[d] = slice[d].Origin
 				current[d-1]++
 			}
 		}
@@ -148,13 +157,13 @@ func (slice Slice) Cells() iter.Iterator[Cell] {
 			current[len(slice)-1]++
 			carry()
 			return current != nil
-			//if current[1] == slice[1].terminus {
-			//	current[1] = slice[1].origin
+			//if current[1] == slice[1].Terminus {
+			//	current[1] = slice[1].Origin
 			//}
 			//for d := 0; d < nDimensions; d++ {
-			//	if current[d] > slice[0].terminus {
+			//	if current[d] > slice[0].Terminus {
 			//		// TODO: figure out the terminal condition
-			//		current[d] = slice[0].origin
+			//		current[d] = slice[0].Origin
 			//	}
 			//}
 		},

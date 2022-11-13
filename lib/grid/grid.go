@@ -67,6 +67,17 @@ func (grid *Grid[T]) Values() *[]T {
 	return &grid.storage
 }
 
+func (grid *Grid[T]) All() Slice {
+	s := make([]Range, len(grid.dimensions))
+	for d := 0; d < len(grid.dimensions); d++ {
+		s[d] = Range{
+			Origin:   grid.offsets[d],
+			Terminus: grid.offsets[d] + grid.dimensions[d],
+		}
+	}
+	return s
+}
+
 func (grid *Grid[T]) NeighboursAdjacent(c Cell, includeCentre bool) []Cell {
 	possibilities := make([]Cell, 0)
 	// this is hard to write n-dimensionally!

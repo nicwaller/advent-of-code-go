@@ -41,7 +41,7 @@ func (grid *Grid[T]) MapSlice(mapFn func(v T) T, s Slice) {
 
 //func (grid *Grid[T]) RectMap(r Rect2D, fn func(v T) T) {
 //	for cells := r.Cells(); cells.Next(); {
-//		// still assuming (0,0) origin and row-major storage
+//		// still assuming (0,0) Origin and row-major storage
 //		cell := cells.Value()
 //		fmt.Println(cell)
 //		offset := cell.Y*grid.RowSize() + cell.X

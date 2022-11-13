@@ -11,11 +11,11 @@ func TestSlice1D(t *testing.T) {
 	if len(slice) != 1 {
 		t.Error("Slice has wrong number of dimensions")
 	}
-	if slice[0].origin != 0 {
-		t.Error("Slice origin should be inclusive")
+	if slice[0].Origin != 0 {
+		t.Error("Slice Origin should be inclusive")
 	}
-	if slice[0].terminus != 1 {
-		t.Error("Slice terminus should be inclusive")
+	if slice[0].Terminus != 1 {
+		t.Error("Slice Terminus should be inclusive")
 	}
 }
 
@@ -25,17 +25,17 @@ func TestSlice2D(t *testing.T) {
 	if len(slice) != 2 {
 		t.Error("Slice has wrong number of dimensions")
 	}
-	if slice[0].origin != 0 {
-		t.Error("Slice origin should be inclusive")
+	if slice[0].Origin != 0 {
+		t.Error("Slice Origin should be inclusive")
 	}
-	if slice[1].origin != 0 {
-		t.Error("Slice origin should be inclusive")
+	if slice[1].Origin != 0 {
+		t.Error("Slice Origin should be inclusive")
 	}
-	if slice[0].terminus != 1 {
-		t.Error("Slice terminus should be inclusive")
+	if slice[0].Terminus != 1 {
+		t.Error("Slice Terminus should be inclusive")
 	}
-	if slice[1].terminus != 1 {
-		t.Error("Slice terminus should be inclusive")
+	if slice[1].Terminus != 1 {
+		t.Error("Slice Terminus should be inclusive")
 	}
 }
 
@@ -45,17 +45,17 @@ func TestSliceNonzero(t *testing.T) {
 	if len(slice) != 2 {
 		t.Error("Slice has wrong number of dimensions")
 	}
-	if slice[0].origin != 1 {
-		t.Error("Slice origin should be inclusive")
+	if slice[0].Origin != 1 {
+		t.Error("Slice Origin should be inclusive")
 	}
-	if slice[1].origin != 1 {
-		t.Error("Slice origin should be inclusive")
+	if slice[1].Origin != 1 {
+		t.Error("Slice Origin should be inclusive")
 	}
-	if slice[0].terminus != 2 {
-		t.Error("Slice terminus should be inclusive")
+	if slice[0].Terminus != 2 {
+		t.Error("Slice Terminus should be inclusive")
 	}
-	if slice[1].terminus != 2 {
-		t.Error("Slice terminus should be inclusive")
+	if slice[1].Terminus != 2 {
+		t.Error("Slice Terminus should be inclusive")
 	}
 }
 

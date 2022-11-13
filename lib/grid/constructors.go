@@ -70,7 +70,7 @@ func FromDelimitedStringAsInt(s string, delim rune) Grid[int] {
 	return TransformGrid(FromDelimitedString(s, delim), unsafeAtoi)
 }
 
-// NewGrid produces a grid of requested size with a zero-point origin (0, 0, ...)
+// NewGrid produces a grid of requested size with a zero-point Origin (0, 0, ...)
 func NewGrid[T comparable](dimensions ...int) Grid[T] {
 	size := 1
 	for _, d := range dimensions {
@@ -88,7 +88,7 @@ func NewGrid[T comparable](dimensions ...int) Grid[T] {
 func NewGridFromSlice[T comparable](slice Slice) Grid[T] {
 	g := NewGrid[T](slice.Dimensions()...)
 	for i, _ := range slice {
-		g.offsets[i] = slice[i].origin
+		g.offsets[i] = slice[i].Origin
 	}
 	return g
 }

@@ -230,6 +230,18 @@ func (iter Iterator[T]) TakeFirst() T {
 	return iter.TakeArray(1)[0]
 }
 
+func (iter Iterator[T]) TakeWhile(condition func(v T) bool) Iterator[T] {
+	return Iterator[T]{
+		Next: func() bool {
+			iter.Next()
+			return condition(iter.Value())
+		},
+		Value: func() T {
+			return iter.Value()
+		},
+	}
+}
+
 func (iter Iterator[T]) List() []T {
 	list := make([]T, 0)
 	for iter.Next() {
