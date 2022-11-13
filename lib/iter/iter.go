@@ -295,5 +295,22 @@ func Transform[I any, O any](iter Iterator[I], fn func(i I) O) Iterator[O] {
 	}
 }
 
+func Range(start int, stop int) Iterator[int] {
+	return RangeStepped(start, stop, 1)
+}
+
+func RangeStepped(start int, stop int, step int) Iterator[int] {
+	cur := start - step
+	return Iterator[int]{
+		Next: func() bool {
+			cur += step
+			return cur < stop
+		},
+		Value: func() int {
+			return cur
+		},
+	}
+}
+
 // TODO: iter.Chunk(chunkSize int)
 // iter.Flatten() would be useful in a dynamically typed language, but I don't think it makes sense for Go.
