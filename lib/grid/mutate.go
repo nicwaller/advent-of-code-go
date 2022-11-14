@@ -1,6 +1,10 @@
 package grid
 
-import "advent-of-code/lib/iter"
+import (
+	"advent-of-code/lib/iter"
+	"fmt"
+	"os"
+)
 
 // TODO: FillRect
 
@@ -11,8 +15,21 @@ func (grid *Grid[T]) Fill(fillValue T) {
 }
 
 func (grid *Grid[T]) FillSlice(fillValue T, s Slice) {
-	for cells := s.Cells(); cells.Next(); {
-		grid.storage[grid.OffsetFromCell(cells.Value())] = fillValue
+	cells := s.Cells()
+	var offset int
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Caught fatal panic in grid.FillSlice()")
+			fmt.Printf("  fillValue = %v\n", fillValue)
+			fmt.Printf("  slice = %v\n", s)
+			fmt.Printf("  current cell = %v\n", cells.Value())
+			fmt.Printf("  offset = %v\n", offset)
+			os.Exit(1)
+		}
+	}()
+	for cells.Next() {
+		offset = grid.OffsetFromCell(cells.Value())
+		grid.storage[offset] = fillValue
 	}
 }
 

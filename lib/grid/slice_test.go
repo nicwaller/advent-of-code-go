@@ -1,6 +1,7 @@
 package grid
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -69,3 +70,12 @@ func TestSlice_Cells(t *testing.T) {
 //func TestLine(t *testing.T) {
 //	point := Line([]int{0}, []int{5}).List()
 //}
+
+func TestSlice_Intersect(t *testing.T) {
+	// 1D
+	a := Slice{Range{Origin: 0, Terminus: 2}}
+	b := Slice{Range{Origin: 3, Terminus: 2}}
+	v := a.Intersect(b)
+	fmt.Println(v)
+	// TODO: what if there is no intersection?
+}

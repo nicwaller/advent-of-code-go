@@ -4,7 +4,6 @@ import (
 	"advent-of-code/lib/grid"
 	"advent-of-code/lib/iter"
 	"advent-of-code/lib/util"
-	"fmt"
 	"os"
 	"strings"
 )
@@ -12,8 +11,10 @@ import (
 var filename = "input.txt"
 
 func UseSampleFile() {
-	fmt.Println("WARNING: using sample file!")
 	filename = "sample.txt"
+}
+func UseRealInput() {
+	filename = "input.txt"
 }
 func InputFilename() string {
 	return filename

@@ -3,6 +3,8 @@ package grid
 import (
 	"advent-of-code/lib/iter"
 	"advent-of-code/lib/util"
+	"errors"
+	"fmt"
 )
 
 type Slice []Range
@@ -175,4 +177,20 @@ func (slice Slice) Cells() iter.Iterator[Cell] {
 
 func (grid *Grid[T]) Select(cells ...Cell) Slice {
 	return SliceEnclosing(cells...)
+}
+
+func (slice Slice) Intersect(s2 Slice) (Slice, error) {
+	ret := make([]Range, len(slice))
+	var err error = nil
+	for i, _ := range slice {
+		ret[i].Origin = util.IntMax(slice[i].Origin, s2[i].Origin)
+		ret[i].Terminus = util.IntMin(slice[i].Terminus, s2[i].Terminus)
+		if ret[i].Origin > ret[i].Terminus {
+			ret[i].Origin = -1
+			ret[i].Terminus = -1
+			err = errors.New(fmt.Sprintf("no intersection: %v | %v", slice[i], s2[i]))
+			//panic("invalid slice") // TODO: maybe return an error?
+		}
+	}
+	return ret, err
 }

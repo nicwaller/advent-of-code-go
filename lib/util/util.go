@@ -86,9 +86,10 @@ func ReadLines(filename string) iter.Iterator[string] {
 }
 
 // NumberFields is like strings.Fields() but it gets all the integers
+// including negative integers ;)
 func NumberFields(s string) []int {
 	stringFields := strings.FieldsFunc(s, func(r rune) bool {
-		return r < '0' || r > '9'
+		return r != '-' && (r < '0' || r > '9')
 	})
 	intFields := make([]int, len(stringFields))
 	for i := 0; i < len(intFields); i++ {
