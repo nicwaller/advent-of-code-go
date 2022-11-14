@@ -62,7 +62,7 @@ func Line(a Cell, b Cell) iter.Iterator[Cell] {
 		Next: func() bool {
 			copy(curPos, nextPos)
 			for d := 0; d < len(a); d++ {
-				nextPos[d] += unitize(b[d], a[d])
+				nextPos[d] += unitize(b[d], curPos[d])
 			}
 			if done {
 				return false
@@ -189,7 +189,6 @@ func (slice Slice) Intersect(s2 Slice) (Slice, error) {
 			ret[i].Origin = -1
 			ret[i].Terminus = -1
 			err = errors.New(fmt.Sprintf("no intersection: %v | %v", slice[i], s2[i]))
-			//panic("invalid slice") // TODO: maybe return an error?
 		}
 	}
 	return ret, err

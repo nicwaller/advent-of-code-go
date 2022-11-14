@@ -67,6 +67,10 @@ func (grid *Grid[T]) Values() *[]T {
 	return &grid.storage
 }
 
+func (grid *Grid[T]) ValuesIterator() iter.Iterator[T] {
+	return iter.ListIterator(grid.storage)
+}
+
 func (grid *Grid[T]) All() Slice {
 	s := make([]Range, len(grid.dimensions))
 	for d := 0; d < len(grid.dimensions); d++ {
@@ -112,7 +116,7 @@ func (grid *Grid[T]) NeighboursAdjacent(c Cell, includeCentre bool) []Cell {
 	if includeCentre {
 		possibilities = append(possibilities, c)
 	}
-	return iter.ListIterator[Cell](&possibilities).Filter(grid.IsInGrid).List()
+	return iter.ListIterator[Cell](possibilities).Filter(grid.IsInGrid).List()
 }
 
 func (grid *Grid[T]) NeighboursSurround(c Cell, includeCentre bool) []Cell {
@@ -144,7 +148,7 @@ func (grid *Grid[T]) NeighboursSurround(c Cell, includeCentre bool) []Cell {
 	if includeCentre {
 		possibilities = append(possibilities, c)
 	}
-	return iter.ListIterator[Cell](&possibilities).Filter(grid.IsInGrid).List()
+	return iter.ListIterator[Cell](possibilities).Filter(grid.IsInGrid).List()
 }
 
 func (grid *Grid[T]) IsInGrid(c Cell) bool {

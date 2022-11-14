@@ -1,11 +1,13 @@
 package util
 
 import (
+	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/iter"
 	"bufio"
+	"math"
 	"os"
+	"regexp"
 	"strconv"
-	"strings"
 )
 
 func UnsafeAtoi(s string) int {
@@ -87,15 +89,20 @@ func ReadLines(filename string) iter.Iterator[string] {
 
 // NumberFields is like strings.Fields() but it gets all the integers
 // including negative integers ;)
+// and be wary of stray hyphens in the input!
 func NumberFields(s string) []int {
-	stringFields := strings.FieldsFunc(s, func(r rune) bool {
-		return r != '-' && (r < '0' || r > '9')
-	})
-	intFields := make([]int, len(stringFields))
-	for i := 0; i < len(intFields); i++ {
-		intFields[i], _ = strconv.Atoi(stringFields[i])
-	}
-	return intFields
+	var intMatcher = regexp.MustCompile("-?[0-9]+")
+	matches := intMatcher.FindAllString(s, math.MaxInt32)
+	return f8l.Map[string, int](matches, UnsafeAtoi)
+	//return
+	//stringFields := strings.FieldsFunc(s, func(r rune) bool {
+	//	return r != '-' && (r < '0' || r > '9')
+	//})
+	//intFields := make([]int, len(stringFields))
+	//for i := 0; i < len(intFields); i++ {
+	//	intFields[i], _ = strconv.Atoi(stringFields[i])
+	//}
+	//return intFields
 }
 
 func IntMin(a int, b int) int {
@@ -111,5 +118,19 @@ func IntMax(a int, b int) int {
 		return a
 	} else {
 		return b
+	}
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func IntSum(a int, b int) int {
+	return a + b
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func IntAbs(a int) int {
+	if a < 0 {
+		return 0 - a
+	} else {
+		return a
 	}
 }

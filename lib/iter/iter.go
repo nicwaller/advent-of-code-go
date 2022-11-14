@@ -23,13 +23,13 @@ func StringIterator(s string, step int) Iterator[string] {
 	}
 }
 
-func ListIterator[T any](list *[]T) Iterator[T] {
+func ListIterator[T any](list []T) Iterator[T] {
 	index := 0
 	var val T
 	return Iterator[T]{
 		Next: func() bool {
-			if index < len(*list) {
-				val = (*list)[index]
+			if index < len(list) {
+				val = (list)[index]
 				index++
 				return true
 			}

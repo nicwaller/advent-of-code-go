@@ -2,27 +2,21 @@ package main
 
 import (
 	"advent-of-code/lib/aoc"
-	"advent-of-code/lib/assert"
 	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/util"
-	"fmt"
+	"strconv"
 )
 
 func main() {
-	//aoc.UseSampleFile()
-	fmt.Printf("Part 1: %d\n", part1(parseFile()))
-	fmt.Printf("Part 2: %d\n", part2(parseFile()))
+	aoc.Day(6)
+	aoc.Test(run, "sample.txt", "5934", "26984457539")
+	aoc.Test(run, "input.txt", "350605", "1592778185024")
+	aoc.Run(run)
 }
 
-type fileType []int
-
-func parseFile() fileType {
-	return util.NumberFields(aoc.InputString())
-}
-
-func part1(input fileType) int {
+func run(p1 *string, p2 *string) {
 	fish := make([]int, 9)
-	for _, v := range input {
+	for _, v := range util.NumberFields(aoc.InputString()) {
 		fish[v]++
 	}
 	for day := 1; day <= 256; day++ {
@@ -32,15 +26,9 @@ func part1(input fileType) int {
 		}
 		fish[6] += newFish
 		fish[8] = newFish
+		if day == 80 {
+			*p1 = strconv.Itoa(f8l.Sum(fish))
+		}
 	}
-	totalFish := f8l.Sum(&fish)
-	assert.NotEqual(totalFish, 1711)
-	assert.NotEqual(totalFish, 5934)
-	assert.EqualAny(totalFish, []int{26, 350605, 1592778185024}, "total fish")
-	return totalFish
-}
-
-func part2(g fileType) int {
-	//assert.EqualAny(basinMultiplyResult, []int{1134, 1023660}, "basinMultiplyResult")
-	return -1
+	*p2 = strconv.Itoa(f8l.Sum(fish))
 }

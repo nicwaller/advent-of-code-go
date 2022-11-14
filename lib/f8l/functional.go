@@ -1,8 +1,8 @@
 package f8l
 
-func Map[I interface{}, O interface{}](items *[]I, mapFn func(I) O) []O {
-	var results = make([]O, len(*items))
-	for i, item := range *items {
+func Map[I interface{}, O interface{}](items []I, mapFn func(I) O) []O {
+	var results = make([]O, len(items))
+	for i, item := range items {
 		results[i] = mapFn(item)
 	}
 	return results
@@ -16,15 +16,15 @@ func Map[I interface{}, O interface{}](items *[]I, mapFn func(I) O) []O {
 //	return Map[int, string](items, strconv.Itoa)
 //}
 
-func Reduce[T comparable](values *[]T, start T, reduce func(a T, b T) T) T {
+func Reduce[T comparable](values []T, start T, reduce func(a T, b T) T) T {
 	result := start
-	for _, val := range *values {
+	for _, val := range values {
 		result = reduce(result, val)
 	}
 	return result
 }
 
-func Sum(values *[]int) int {
+func Sum(values []int) int {
 	add := func(a int, b int) int {
 		return a + b
 	}

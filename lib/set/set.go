@@ -120,7 +120,7 @@ func (set Set[T]) Items() []T {
 
 func (set Set[T]) Iterator() iter.Iterator[T] {
 	items := set.Items()
-	return iter.ListIterator(&items)
+	return iter.ListIterator(items)
 }
 
 func (set Set[T]) Size() int {

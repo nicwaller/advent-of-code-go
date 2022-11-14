@@ -1,74 +1,38 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
-	"fmt"
-	"os"
+	"advent-of-code/lib/aoc"
+	"advent-of-code/lib/util"
 	"strconv"
 	"strings"
 )
 
 func main() {
-	content := parseFile()
-	fmt.Printf("Part 1: %d\n", part1(content))
-	fmt.Printf("Part 2: %d\n", part2(content))
+	aoc.Day(2)
+	aoc.Test(run, "sample.txt", "150", "900")
+	aoc.Test(run, "input.txt", "1580000", "1251263225")
+	aoc.Run(run)
 }
 
-type fileType []record
-type record struct {
-	direction string
-	quantity  int
-}
-
-func parseFile() fileType {
-	fbytes, err := os.ReadFile("input.txt")
-	if err != nil {
-		fmt.Println(err)
-	}
-	var records []record
-	scanner := bufio.NewScanner(bytes.NewReader(fbytes))
-	for scanner.Scan() {
-		fields := strings.Split(scanner.Text(), " ")
-		distance, _ := strconv.Atoi(fields[1])
-		records = append(records, record{
-			direction: fields[0],
-			quantity:  distance,
-		})
-	}
-	return records
-}
-
-func part1(input fileType) int {
+func run(p1 *string, p2 *string) {
 	var y, z = 0, 0
-	for _, movement := range input {
-		switch movement.direction {
+	var z2, aim = 0, 0
+	for lines := aoc.InputLinesIterator(); lines.Next(); {
+		fields := strings.Split(lines.Value(), " ")
+		direction := fields[0]
+		quantity := util.UnsafeAtoi(fields[1])
+		switch direction {
 		case "up":
-			z -= movement.quantity
+			z -= quantity
+			aim -= quantity
 		case "down":
-			z += movement.quantity
+			z += quantity
+			aim += quantity
 		case "forward":
-			y += movement.quantity
+			y += quantity
+			z2 += quantity * aim
 		}
 	}
-
-	return y * z // 1580000
-}
-
-func part2(input fileType) int {
-	var y, z = 0, 0
-	var aim = 0
-	for _, movement := range input {
-		switch movement.direction {
-		case "down":
-			aim += movement.quantity
-		case "up":
-			aim -= movement.quantity
-		case "forward":
-			y += movement.quantity
-			z += movement.quantity * aim
-		}
-	}
-
-	return y * z
+	*p1 = strconv.Itoa(y * z)
+	*p2 = strconv.Itoa(y * z2)
 }
