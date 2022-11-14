@@ -14,15 +14,15 @@ func (grid *Grid[T]) String() string {
 	case 1:
 		return fmt.Sprint(grid.storage)
 	case 2:
-		rowLength := grid.dimensions[1]
-		rows := len(grid.storage) / rowLength
-		var rowStrings []string
-		for row := 0; row < rows; row++ {
-			offset := row * rowLength
-			line := fmt.Sprint(grid.storage[offset : offset+rowLength])
-			rowStrings = append(rowStrings, line)
+		var sb strings.Builder
+		sb.Grow(len(grid.storage))
+		for offset, val := range grid.storage {
+			sb.WriteString(fmt.Sprintf("%v", val))
+			if (offset+1)%grid.dimensions[1] == 0 {
+				sb.WriteString("\n")
+			}
 		}
-		return strings.Join(rowStrings, "\n")
+		return sb.String()
 	default:
 		return fmt.Sprintf("Cannot print %d-dimensional grid", len(grid.dimensions))
 	}

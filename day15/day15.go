@@ -26,18 +26,37 @@ func part1(input grid.Grid[int]) int {
 			g.AddCost(src, dst, int64(input.Get(c.Value())))
 		}
 	}
-	p, d := graph.ShortestPath(g, 0, input.RowCount()*input.ColumnCount()-1)
-	fmt.Println(p)
-	fmt.Println(d)
-	pathCost := 0
-	for _, step := range p[1:] {
-		v := input.Get(input.CellFromOffset(step))
-		fmt.Println(v)
-		pathCost += v
-	}
-	return pathCost
+	_, distance := graph.ShortestPath(g, 0, input.RowCount()*input.ColumnCount()-1)
+	return int(distance)
 }
 
-func part2(input grid.Grid[int]) int {
-	return -1
+func part2(inputA grid.Grid[int]) int {
+	bigGrid := grid.NewGrid[int](inputA.RowCount()*5, inputA.ColumnCount()*5)
+	for dstCellIter := bigGrid.Cells(); dstCellIter.Next(); {
+		dstCell := dstCellIter.Value()
+		srcCell := grid.Cell{
+			dstCell[0] % inputA.Width(),
+			dstCell[1] % inputA.Height(),
+		}
+		riskOffset := dstCell[0]/inputA.Width() + dstCell[1]/inputA.Height()
+		srcVal := inputA.Get(srcCell)
+		// this line here is a bit of straight fuckery
+		// y u do this to me
+		// > "However, risk levels above 9 wrap back around to 1"
+		// SERIOUSLY?!
+		dstVal := (srcVal+riskOffset)%10 + ((srcVal + riskOffset) / 10)
+		_ = riskOffset
+		bigGrid.Set(dstCell, dstVal)
+	}
+	bigGrid.Print()
+	g := graph.New(bigGrid.RowCount() * bigGrid.ColumnCount())
+	for c := bigGrid.Cells(); c.Next(); {
+		dst := bigGrid.OffsetFromCell(c.Value())
+		for _, n := range bigGrid.NeighboursAdjacent(c.Value(), false) {
+			src := bigGrid.OffsetFromCell(n)
+			g.AddCost(src, dst, int64(bigGrid.Get(c.Value())))
+		}
+	}
+	_, distance := graph.ShortestPath(g, 0, bigGrid.RowCount()*bigGrid.ColumnCount()-1)
+	return int(distance)
 }
