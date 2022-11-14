@@ -64,7 +64,7 @@ func isSmallCave(name string) bool {
 	return strings.ToLower(name) == name
 }
 
-func getPathsFrom(v int, f fileType, pathSoFar []int, fn func(path []int)) {
+func getPathsFrom(v int, f fileType, pathSoFar []int, fn func(path []int), doubleCave *int) {
 	isSeen := func(nodeId int) bool {
 		for _, v := range pathSoFar {
 			if v == nodeId {
@@ -85,9 +85,12 @@ func getPathsFrom(v int, f fileType, pathSoFar []int, fn func(path []int)) {
 		}
 		if isSeen(w) && isSmallCave(f.nodeNames[w]) {
 			//fmt.Println("dead end")
+			if doubleCave == nil {
+				getPathsFrom(w, f, newPath, fn, &w)
+			}
 			return false
 		}
-		getPathsFrom(w, f, newPath, fn)
+		getPathsFrom(w, f, newPath, fn, doubleCave)
 		return false
 	})
 }
@@ -102,7 +105,7 @@ func part1(input fileType) int {
 		//	fmt.Printf("%s,", input.nodeNames[node])
 		//}
 		//fmt.Println("")
-	})
+	}, nil)
 	return count
 }
 
