@@ -2,59 +2,49 @@ package main
 
 import (
 	"advent-of-code/lib/aoc"
-	"advent-of-code/lib/set"
-	"fmt"
-	"github.com/yourbasic/graph"
+	"advent-of-code/lib/grapheasy"
+	"strconv"
 	"strings"
 )
 
 func main() {
-	//aoc.UseSampleFile()
-	fmt.Printf("Part 1: %d\n", part1(parseFile()))
-	fmt.Printf("Part 2: %d\n", part2(parseFile()))
+	aoc.Day(12)
+	aoc.Test(run, "sample1.txt", "10", "36")
+	aoc.Test(run, "sample2.txt", "19", "103")
+	aoc.Test(run, "sample3.txt", "226", "3509")
+	aoc.Test(run, "input.txt", "5333", "146553")
+	aoc.Run(run)
 }
 
-type fileType struct {
-	nodeNames  []string
-	nodeLookup map[string]int
-	g          *graph.Mutable
+type MaxNode struct {
+	small bool
 }
 
-func parseFile() fileType {
-	nodeSet := set.New[string]()
-	edges := make([][2]string, 0)
-
-	// Read the file into memory
-	for line := aoc.InputLinesIterator(); line.Next(); {
-		parts := strings.Split(line.Value(), "-")
-		from := parts[0]
-		to := parts[1]
-		nodeSet.Extend(from, to)
-		edges = append(edges, [2]string{from, to})
-		edges = append(edges, [2]string{to, from})
+func run(p1 *string, p2 *string) {
+	lines := aoc.InputLines()
+	gg := grapheasy.New[MaxNode](len(lines))
+	for _, line := range lines {
+		parts := strings.Split(line, "-")
+		gg.AddBoth(parts[0], parts[1])
 	}
 
-	// assign ordered numeric values to the nodeNames
-	// I am surprised the graph library doesn't do this.
-	nodeList := nodeSet.Items()
-	nodeMap := make(map[string]int)
-	for i, v := range nodeList {
-		nodeMap[v] = i
-		//fmt.Printf("  Node %d: %v\n", i, v)
-	}
+	gg.DefineNodeContext(func(idx int, label string) MaxNode {
+		return MaxNode{small: isSmallCave(label)}
+	})
 
-	// build the graph object
-	g := graph.New(len(nodeList))
-	for _, edge := range edges {
-		g.Add(nodeMap[edge[0]], nodeMap[edge[1]])
-	}
-	//fmt.Println(g)
+	start, _, _ := gg.NodeByName("start")
 
-	return fileType{
-		nodeNames:  nodeList,
-		nodeLookup: nodeMap,
-		g:          g,
-	}
+	count := 0
+	getPathsFrom(start, gg, []int{start}, func(path []int) {
+		count++
+	}, &count)
+	*p1 = strconv.Itoa(count)
+
+	count = 0
+	getPathsFrom(start, gg, []int{start}, func(path []int) {
+		count++
+	}, nil)
+	*p2 = strconv.Itoa(count)
 }
 
 func isSmallCave(name string) bool {
@@ -64,7 +54,7 @@ func isSmallCave(name string) bool {
 	return strings.ToLower(name) == name
 }
 
-func getPathsFrom(v int, f fileType, pathSoFar []int, fn func(path []int), doubleCave *int) {
+func getPathsFrom(v int, f grapheasy.Graph[MaxNode], pathSoFar []int, fn func(path []int), doubleCave *int) {
 	isSeen := func(nodeId int) bool {
 		for _, v := range pathSoFar {
 			if v == nodeId {
@@ -73,9 +63,10 @@ func getPathsFrom(v int, f fileType, pathSoFar []int, fn func(path []int), doubl
 		}
 		return false
 	}
-	f.g.Visit(v, func(w int, c int64) bool {
+	f.Underlying().Visit(v, func(w int, c int64) bool {
 		newPath := append(pathSoFar, w)
-		nodeName := f.nodeNames[w]
+		_, label, ctx := f.NodeById(w)
+		nodeName := *label
 		if nodeName == "start" {
 			return false
 		}
@@ -83,8 +74,7 @@ func getPathsFrom(v int, f fileType, pathSoFar []int, fn func(path []int), doubl
 			fn(newPath)
 			return false
 		}
-		if isSeen(w) && isSmallCave(f.nodeNames[w]) {
-			//fmt.Println("dead end")
+		if isSeen(w) && ctx.small {
 			if doubleCave == nil {
 				getPathsFrom(w, f, newPath, fn, &w)
 			}
@@ -93,22 +83,4 @@ func getPathsFrom(v int, f fileType, pathSoFar []int, fn func(path []int), doubl
 		getPathsFrom(w, f, newPath, fn, doubleCave)
 		return false
 	})
-}
-
-func part1(input fileType) int {
-	start := input.nodeLookup["start"]
-	count := 0
-	getPathsFrom(start, input, []int{start}, func(path []int) {
-		count++
-		//fmt.Printf("Got path: %v\n  ", path)
-		//for _, node := range path {
-		//	fmt.Printf("%s,", input.nodeNames[node])
-		//}
-		//fmt.Println("")
-	}, nil)
-	return count
-}
-
-func part2(input fileType) int {
-	return -1
 }

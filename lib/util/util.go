@@ -134,3 +134,11 @@ func IntAbs(a int) int {
 		return a
 	}
 }
+
+func IntIncr(a int) int {
+	return a + 1
+}
+
+func Identity[T any](v T) T {
+	return v
+}

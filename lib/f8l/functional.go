@@ -31,12 +31,26 @@ func Sum(values []int) int {
 	return Reduce[int](values, 0, add)
 }
 
-func Filter[T comparable](items *[]T, include func(T) bool) []T {
+func Filter[T comparable](items []T, include func(T) bool) []T {
 	var results = make([]T, 0)
-	for _, item := range *items {
+	for _, item := range items {
 		if include(item) {
 			results = append(results, item)
 		}
 	}
 	return results
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func Fork[T comparable](items []T, include func(T) bool) ([]T, []T) {
+	var included = make([]T, 0)
+	var excluded = make([]T, 0)
+	for _, item := range items {
+		if include(item) {
+			included = append(included, item)
+		} else {
+			excluded = append(excluded, item)
+		}
+	}
+	return included, excluded
 }
