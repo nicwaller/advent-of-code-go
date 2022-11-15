@@ -91,6 +91,7 @@ func ReadLines(filename string) iter.Iterator[string] {
 // NumberFields is like strings.Fields() but it gets all the integers
 // including negative integers ;)
 // and be wary of stray hyphens in the input!
+// TODO: rename to IntFields()
 func NumberFields(s string) []int {
 	var intMatcher = regexp.MustCompile("-?[0-9]+")
 	matches := intMatcher.FindAllString(s, math.MaxInt32)

@@ -193,3 +193,15 @@ func (slice Slice) Intersect(s2 Slice) (Slice, error) {
 	}
 	return ret, err
 }
+
+func (slice Slice) Contains(c Cell) bool {
+	if len(slice) != len(c) {
+		panic("mismatched dimensions")
+	}
+	for d, _ := range slice {
+		if c[d] < slice[d].Origin || c[d] > slice[d].Terminus {
+			return false
+		}
+	}
+	return true
+}
