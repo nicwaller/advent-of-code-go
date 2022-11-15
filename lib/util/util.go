@@ -4,6 +4,7 @@ import (
 	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/iter"
 	"bufio"
+	"golang.org/x/exp/constraints"
 	"math"
 	"os"
 	"regexp"
@@ -127,6 +128,11 @@ func IntSum(a int, b int) int {
 }
 
 //goland:noinspection GoUnusedExportedFunction
+func IntProduct(a int, b int) int {
+	return a * b
+}
+
+//goland:noinspection GoUnusedExportedFunction
 func IntAbs(a int) int {
 	if a < 0 {
 		return 0 - a
@@ -141,4 +147,31 @@ func IntIncr(a int) int {
 
 func Identity[T any](v T) T {
 	return v
+}
+
+func GreaterThan[T constraints.Ordered](a T, b T) int {
+	if a > b {
+		return 1
+	}
+	return 0
+}
+
+func LessThan[T constraints.Ordered](a T, b T) int {
+	if a < b {
+		return 1
+	}
+	return 0
+}
+
+// FromHexChar converts a hex character into its value and a success flag.
+func FromHexChar(c byte) byte {
+	switch {
+	case '0' <= c && c <= '9':
+		return c - '0'
+	case 'a' <= c && c <= 'f':
+		return c - 'a' + 10
+	case 'A' <= c && c <= 'F':
+		return c - 'A' + 10
+	}
+	panic(c)
 }

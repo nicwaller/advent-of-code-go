@@ -2,40 +2,40 @@ package main
 
 import (
 	"advent-of-code/lib/aoc"
-	"advent-of-code/lib/assert"
 	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/iter"
 	"advent-of-code/lib/util"
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 )
 
 func main() {
-	//aoc.UseSampleFile()
-	fmt.Printf("Part 1: %d\n", part1(parseFile()))
-	fmt.Printf("Part 2: %d\n", part2(parseFile()))
+	aoc.Day(16)
+	aoc.Test(run, "sample1.txt", "16", "")
+	aoc.Test(run, "sample2.txt", "12", "")
+	aoc.Test(run, "sample3.txt", "23", "")
+	aoc.Test(run, "sample4.txt", "31", "")
+	aoc.Test(run, "input.txt", "991", "1264485568252")
+	aoc.Run(run)
 }
 
-// fromHexChar converts a hex character into its value and a success flag.
-func fromHexChar(c byte) byte {
-	switch {
-	case '0' <= c && c <= '9':
-		return c - '0'
-	case 'a' <= c && c <= 'f':
-		return c - 'a' + 10
-	case 'A' <= c && c <= 'F':
-		return c - 'A' + 10
-	}
-	panic(c)
-}
-
-func parseFile() string {
+func run(p1 *string, p2 *string) {
 	var sb strings.Builder
 	for _, c := range aoc.InputString() {
-		sb.WriteString(fmt.Sprintf("%.4b", fromHexChar(byte(c))))
+		sb.WriteString(fmt.Sprintf("%.4b", util.FromHexChar(byte(c))))
 	}
-	return sb.String()
+	input := sb.String()
+	p, _ := decodePacket(iter.StringIterator(input, 1))
+
+	sumPacketVersions := 0
+	depthFirstTraversal(p, func(p packet) {
+		sumPacketVersions += p.version
+	})
+	*p1 = strconv.Itoa(sumPacketVersions)
+
+	*p2 = strconv.Itoa(evalPacket(p))
 }
 
 type packet struct {
@@ -117,24 +117,6 @@ func decodeAllPackets(ite iter.Iterator[string]) []packet {
 	return ret
 }
 
-func part1(input string) int {
-	p, _ := decodePacket(iter.StringIterator(input, 1))
-	sumPacketVersions := 0
-	//prettyPrintPacket(p, 0)
-	depthFirstTraversal(p, func(p packet) {
-		sumPacketVersions += p.version
-	})
-	return sumPacketVersions
-}
-
-func part2(input string) int {
-	p, _ := decodePacket(iter.StringIterator(input, 1))
-	ret := evalPacket(p)
-	assert.NotEqual(ret, 1264485568359)
-	assert.Equal(ret, 1264485568252)
-	return evalPacket(p)
-}
-
 func prettyPrintPacket(p packet, indent int) {
 	fmt.Printf("%sV%d T%d (%d)\n", strings.Repeat("  ", indent), p.version, p.typeid, p.operand)
 	for _, inner := range p.sub {
@@ -151,16 +133,16 @@ func depthFirstTraversal(p packet, fn func(p packet)) {
 }
 
 func evalPacket(p packet) int {
-	operands := f8l.Map[packet, int](&p.sub, evalPacket)
+	operands := f8l.Map[packet, int](p.sub, evalPacket)
 	switch p.typeid {
 	case 0: // sum
-		return f8l.Reduce(&operands, 0, func(a int, b int) int { return a + b })
+		return f8l.Reduce(operands, 0, util.IntSum)
 	case 1: // product
-		return f8l.Reduce(&operands, 1, func(a int, b int) int { return a * b })
+		return f8l.Reduce(operands, 1, util.IntProduct)
 	case 2: // min
-		return f8l.Reduce(&operands, math.MaxInt32, util.IntMin)
+		return f8l.Reduce(operands, math.MaxInt32, util.IntMin)
 	case 3: // max
-		return f8l.Reduce(&operands, math.MinInt32, util.IntMax)
+		return f8l.Reduce(operands, math.MinInt32, util.IntMax)
 	case 4: // literal
 		return p.operand
 	case 5: // greater than
