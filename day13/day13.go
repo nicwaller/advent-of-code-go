@@ -5,26 +5,18 @@ import (
 	"advent-of-code/lib/grid"
 	"advent-of-code/lib/util"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
 func main() {
-	//aoc.UseSampleFile()
-	fmt.Printf("Part 1: %d\n", part1(parseFile()))
-	fmt.Printf("Part 2: %d\n", part2(parseFile()))
+	aoc.Day(13)
+	aoc.Test(run, "sample.txt", "17", "")
+	aoc.Test(run, "input.txt", "759", "")
+	aoc.Run(run)
 }
 
-type fileType struct {
-	dots  []grid.Cell
-	folds []fold
-}
-
-type fold struct {
-	axis     string
-	position int
-}
-
-func parseFile() fileType {
+func run(p1 *string, p2 *string) {
 	lines := aoc.InputLinesIterator()
 
 	dots := make([]grid.Cell, 0)
@@ -46,10 +38,30 @@ func parseFile() fileType {
 		})
 	}
 
-	return fileType{
-		dots:  dots,
-		folds: folds,
+	fix := append(dots, grid.Cell{0, 0})
+	g := grid.NewGridFromSlice[string](grid.SliceEnclosing(fix...))
+	g.Fill(".")
+	for _, dot := range dots {
+		g.Set(dot, "#")
 	}
+
+	// First Fold
+	foldInPlace(g, folds[0])
+	visibleDots := g.Filter(func(v string) bool { return v == "#" }).Count()
+	*p1 = strconv.Itoa(visibleDots)
+
+	// Remaining Folds
+	for _, f := range folds[1:] {
+		foldInPlace(g, f)
+	}
+
+	// it wouldn't be easy to convert this into an actual string result
+	AoCPrint(g)
+}
+
+type fold struct {
+	axis     string
+	position int
 }
 
 func foldInPlace(g grid.Grid[string], at fold) {
@@ -64,17 +76,6 @@ func foldInPlace(g grid.Grid[string], at fold) {
 
 	var foldOrigin grid.Cell
 	var foldDestination grid.Cell
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println("PANIC")
-			// FIXME: why are the offsets non-zero?
-			fmt.Printf("Current fold: %v\n", at)
-			fmt.Printf(" origin:      %v\n destination: %v\n", foldOrigin, foldDestination)
-			srcOffset := g.OffsetFromCell(foldOrigin)
-			dstOffset := g.OffsetFromCell(foldDestination)
-			fmt.Printf(" src:  %v\n dst:  %v\n", srcOffset, dstOffset)
-		}
-	}()
 
 	s := g.All()
 	s[dimension].Origin = at.position
@@ -83,49 +84,17 @@ func foldInPlace(g grid.Grid[string], at fold) {
 		foldDestination = make([]int, len(foldOrigin))
 		copy(foldDestination, foldOrigin)
 		foldDestination[dimension] = at.position - (foldOrigin[dimension] - at.position)
-		//fmt.Printf("%v -> %v\n", foldOrigin, foldDestination)
 		if g.Get(foldOrigin) == "#" {
 			g.Set(foldDestination, "#")
 			g.Set(foldOrigin, ".")
 		}
 	}
-	//g.FillSlice(".", s)
-	//fmt.Println(at)
-	//fmt.Println(s)
-}
-
-func part1(input fileType) int {
-	fix := append(input.dots, grid.Cell{0, 0})
-	g := grid.NewGridFromSlice[string](grid.SliceEnclosing(fix...))
-	g.Fill(".")
-	for _, dot := range input.dots {
-		g.Set(dot, "#")
-	}
-
-	// First Fold
-	foldInPlace(g, input.folds[0])
-	visibleDots := g.Filter(func(v string) bool { return v == "#" }).Count()
-	//assert.EqualAny(visibleDots, []int{759}, "visible dots")
-
-	// Remaining Folds
-	fmt.Println("folding at home...")
-	for idx, f := range input.folds[1:] {
-		fmt.Printf("starting fold #%d\n", idx)
-		foldInPlace(g, f)
-	}
-	AoCPrint(g)
-	return visibleDots
-}
-
-func part2(g fileType) int {
-	//assert.EqualAny(basinMultiplyResult, []int{1134, 1023660}, "basinMultiplyResult")
-	return -1
 }
 
 func AoCPrint(g grid.Grid[string]) {
 	fmt.Println("")
-	for rowIndex := 0; rowIndex < 50; rowIndex++ {
-		fmt.Println(strings.Join(g.Row(rowIndex), ""))
+	for rowIndex := 0; rowIndex < 6; rowIndex++ {
+		fmt.Println(strings.Join(g.Row(rowIndex)[:60], ""))
 	}
 	fmt.Println("")
 }
