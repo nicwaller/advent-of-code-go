@@ -2,8 +2,6 @@ package main
 
 import (
 	"advent-of-code/lib/aoc"
-	"advent-of-code/lib/grid"
-	"advent-of-code/lib/iter"
 	"advent-of-code/lib/util"
 	"fmt"
 	"strconv"
@@ -11,66 +9,65 @@ import (
 
 func main() {
 	aoc.Day(17)
-	aoc.Test(run, "sample.txt", "45", "")
-	//aoc.Test(run, "input.txt", "", "")
+	aoc.Test(run, "sample.txt", "45", "112")
+	aoc.Test(run, "input.txt", "4851", "1739")
 	aoc.Run(run)
+	aoc.Out()
 }
 
 func run(p1 *string, p2 *string) {
 	f := util.NumberFields(aoc.InputString())
-	target := grid.SliceEnclosing(
-		grid.Cell{f[0], f[2]},
-		grid.Cell{f[1], f[3]},
-	)
+	targetX0 := f[0]
+	targetX1 := f[1]
+	targetY0 := f[2]
+	targetY1 := f[3]
 
-	fmt.Printf("target: %d < x < %d\n", f[0], f[1])
+	count := 0
+	highestApex := 0
 
-	var finalX = 0
-	launchPossibilitiesX := make([]int, 0)
-	for launchVX := 0; finalX <= f[1]; launchVX++ {
-		finalX += launchVX
-		if finalX > f[0] && finalX < f[1] {
-			launchPossibilitiesX = append(launchPossibilitiesX, launchVX)
-		}
-	}
-	fmt.Println(launchPossibilitiesX)
-
-	maxVY := 0
-	for _, vx := range launchPossibilitiesX {
-		for vy := 0; vy < 100; vy++ {
-			if simulate(vx, vy, target) {
-				fmt.Printf("yes vx=%d, vy=%d\n", vx, vy)
-				maxVY = util.IntMax(maxVY, vy)
+	for vx1 := 0; vx1 < 300; vx1++ {
+		for vy1 := -100; vy1 < 100; vy1++ {
+			vx := vx1
+			vy := vy1
+			x := 0
+			y := 0
+			apex := 0
+			hitTarget := false
+		Simulation:
+			for {
+				if vy == 0 {
+					apex = y
+				}
+				x += vx
+				y += vy
+				if targetX0 <= x && x <= targetX1 {
+					if targetY0 <= y && y <= targetY1 {
+						hitTarget = true
+						count++
+						break Simulation
+					}
+				}
+				if x > targetX1 {
+					break Simulation
+				}
+				if y < util.IntMin(targetY0, targetY1) {
+					break Simulation
+				}
+				if vx > 0 {
+					vx--
+				}
+				vy--
+			}
+			if hitTarget {
+				fmt.Printf("Solution: vx=%d, vy=%d\n", vx1, vy1)
+				highestApex = util.IntMax(highestApex, apex)
 			}
 		}
 	}
-	peakY := iter.Range(0, maxVY+1).Reduce(util.IntSum, 0)
-	fmt.Println(maxVY)
-	fmt.Println(peakY)
+	//peakY := iter.Range(0, maxVY+1).Reduce(util.IntSum, 0)
+	//fmt.Println(maxVY)
+	//fmt.Println(peakY)
 
-	*p1 = strconv.Itoa(peakY)
-	//*p2 = strconv.Itoa(p2)
-}
-
-func simulate(vx1 int, vy1 int, target grid.Slice) bool {
-	x := 0
-	y := 0
-	vx := vx1
-	vy := vy1
-
-	yTrace := []int{y}
-	for {
-		x += vx
-		y += vy
-		yTrace = append(yTrace, y)
-		if y < target[1].Origin {
-			return false
-		} else if target.Contains([]int{x, y}) {
-			return true
-		}
-		if vx > 0 {
-			vx--
-		}
-		vy--
-	}
+	*p1 = strconv.Itoa(highestApex)
+	*p2 = strconv.Itoa(count)
 }
