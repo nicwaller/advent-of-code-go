@@ -239,6 +239,14 @@ func (iter Iterator[T]) Skip(count int) error {
 	return nil
 }
 
+func (iter Iterator[T]) MustTakeArray(count int) []T {
+	arr, err := iter.TakeArray(count)
+	if err != nil {
+		panic(err)
+	}
+	return arr
+}
+
 func (iter Iterator[T]) TakeArray(count int) ([]T, error) {
 	ret := make([]T, count)
 	for i := 0; i < count; i++ {

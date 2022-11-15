@@ -32,12 +32,15 @@ func MostCommon[T comparable](list []T) T {
 }
 
 type AnalyzeResult[T comparable] struct {
-	Min         T
-	Max         T
-	Count       int
-	Distinct    int
-	MostCommon  T
-	LeastCommon T
+	Min              T
+	Max              T
+	Count            int
+	Distinct         int
+	MostCommon       T
+	CountMostCommon  int
+	LeastCommon      T
+	CountLeastCommon int
+	Frequency        map[T]int
 }
 
 func Analyze[T constraints.Ordered](list []T) AnalyzeResult[T] {
@@ -76,12 +79,15 @@ func Analyze[T constraints.Ordered](list []T) AnalyzeResult[T] {
 	}
 
 	return AnalyzeResult[T]{
-		Count:       len(list),
-		Distinct:    len(distinct),
-		Min:         min,
-		Max:         max,
-		MostCommon:  topKey,
-		LeastCommon: bottomKey,
+		Count:            len(list),
+		Distinct:         len(distinct),
+		Frequency:        distinct,
+		Min:              min,
+		Max:              max,
+		MostCommon:       topKey,
+		CountMostCommon:  topScore,
+		LeastCommon:      bottomKey,
+		CountLeastCommon: bottomScore,
 	}
 }
 
