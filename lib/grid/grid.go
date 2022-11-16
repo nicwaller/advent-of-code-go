@@ -32,9 +32,10 @@ func (grid *Grid[T]) recalculateJumps() {
 
 // OffsetFromCell returns the index of the storage slice that corresponds to the requested cell
 // 2D example, 3x3 grid:
-//   0 1 2
-//   3 4 5
-//   6 7 8
+//
+//	0 1 2
+//	3 4 5
+//	6 7 8
 func (grid *Grid[T]) OffsetFromCell(cell Cell) int {
 	pos := 0
 	for d, z := range cell {
@@ -56,7 +57,8 @@ func (grid *Grid[T]) CellFromOffset(offset int) Cell {
 }
 
 func (grid *Grid[T]) Get(cell Cell) T {
-	return grid.storage[grid.OffsetFromCell(cell)]
+	offset := grid.OffsetFromCell(cell)
+	return grid.storage[offset]
 }
 
 func (grid *Grid[T]) Set(cell Cell, v T) {
