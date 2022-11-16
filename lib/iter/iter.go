@@ -1,6 +1,8 @@
 package iter
 
-import "errors"
+import (
+	"errors"
+)
 
 // I really like itertools -NW
 // https://docs.python.org/3/library/itertools.html
@@ -133,7 +135,9 @@ func EmptyIterator[T any]() Iterator[T] {
 
 // SlidingWindow This cannot be implemented as a reciever method
 // iter/iter.go:6:15: instantiation cycle:
+//
 //	iter/iter.go:136:65: T instantiated as []T
+//
 // It's also not possible to implement Pairwise() with multiple-return :(
 func SlidingWindow[T any](windowSize int, iter Iterator[T]) Iterator[[]T] {
 	window := make([]T, windowSize)
@@ -341,6 +345,54 @@ func RangeStepped(start int, stop int, step int) Iterator[int] {
 		},
 		Value: func() int {
 			return cur
+		},
+	}
+}
+
+func Product[T any](a []T, b []T) Iterator[[2]T] {
+	offset := 0
+	terminus := len(a) * len(b)
+	return Iterator[[2]T]{
+		Next: func() bool {
+			offset++
+			return offset < terminus
+		},
+		Value: func() [2]T {
+			return [2]T{
+				a[offset/len(a)],
+				b[offset%len(a)],
+			}
+		},
+	}
+}
+
+func ProductV[T any](a ...[]T) Iterator[[]T] {
+	index := make([]int, len(a))
+	index[0] = -1
+
+	return Iterator[[]T]{
+		Next: func() bool {
+			index[0]++
+			for d := 0; d < len(a); d++ {
+				if index[d] == len(a[d]) {
+					index[d] = 0
+					if d == len(a)-1 {
+						return false
+					}
+					index[d+1]++
+				}
+			}
+			return true
+		},
+		Value: func() []T {
+			// Yes, I know all these memory copies are inefficient
+			// But at least it is safe
+			// consumers don't expect delivered results to change after calling .Next()
+			res := make([]T, len(a))
+			for d := 0; d < len(a); d++ {
+				res[d] = a[d][index[d]]
+			}
+			return res
 		},
 	}
 }
