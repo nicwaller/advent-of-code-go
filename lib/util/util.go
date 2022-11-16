@@ -107,6 +107,10 @@ func NumberFields(s string) []int {
 	//return intFields
 }
 
+func InRange[T constraints.Ordered](value T, min T, max T) bool {
+	return value >= min && value <= max
+}
+
 func IntMin(a int, b int) int {
 	if a < b {
 		return a

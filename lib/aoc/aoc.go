@@ -205,3 +205,17 @@ func InputGridNumbers() grid.Grid[int] {
 	s := InputString()
 	return grid.FromStringAsInt(s)
 }
+
+func ParagraphsIterator() iter.Iterator[[]string] {
+	lines := InputLinesIterator()
+	var parLines []string
+	return iter.Iterator[[]string]{
+		Next: func() bool {
+			parLines = lines.TakeWhile(func(v string) bool { return v != "" }).List()
+			return len(parLines) > 0
+		},
+		Value: func() []string {
+			return parLines
+		},
+	}
+}

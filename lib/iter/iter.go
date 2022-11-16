@@ -244,6 +244,11 @@ func (iter Iterator[T]) Skip(count int) error {
 	return nil
 }
 
+func (iter Iterator[T]) Go() {
+	for iter.Next() {
+	}
+}
+
 func (iter Iterator[T]) Echo() Iterator[T] {
 	return Iterator[T]{
 		Next: func() bool {
@@ -286,8 +291,11 @@ func (iter Iterator[T]) TakeFirst() T {
 func (iter Iterator[T]) TakeWhile(condition func(v T) bool) Iterator[T] {
 	return Iterator[T]{
 		Next: func() bool {
-			iter.Next()
-			return condition(iter.Value())
+			if !iter.Next() {
+				return false
+			}
+			v := iter.Value()
+			return condition(v)
 		},
 		Value: func() T {
 			return iter.Value()
@@ -310,6 +318,21 @@ func (iter Iterator[T]) Count() int {
 		c++
 	}
 	return c
+}
+
+func (iter Iterator[T]) Counting(c *int) Iterator[T] {
+	return Iterator[T]{
+		Next: func() bool {
+			if iter.Next() {
+				*c++
+				return true
+			}
+			return false
+		},
+		Value: func() T {
+			return iter.Value()
+		},
+	}
 }
 
 // Cannot be implemented as a reciever method because of limits in generic typing system
