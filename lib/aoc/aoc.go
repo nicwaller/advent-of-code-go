@@ -17,10 +17,10 @@ type RunFunc func(p1 *string, p2 *string)
 var summary strings.Builder
 var dayNumber int
 
-func Day(day int) {
+func Select(year int, day int) {
 	dayNumber = day
 	wd, _ := os.Getwd()
-	dayDir := fmt.Sprintf("day%02d", day)
+	dayDir := fmt.Sprintf("%d/day%02d", year, day)
 	if wd == dayDir {
 		// good!
 	} else {
