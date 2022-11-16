@@ -176,3 +176,11 @@ func FromHexChar(c byte) byte {
 	}
 	panic(c)
 }
+
+//goland:noinspection GoUnusedExportedFunction
+func Must[T any](result T, err9 error) T {
+	if err9 != nil {
+		panic(err9)
+	}
+	return result
+}

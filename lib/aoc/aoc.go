@@ -5,7 +5,11 @@ import (
 	"advent-of-code/lib/iter"
 	"advent-of-code/lib/util"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
+	"os/user"
+	"path"
 	"strings"
 	"time"
 )
@@ -16,9 +20,11 @@ type RunFunc func(p1 *string, p2 *string)
 
 var summary strings.Builder
 var dayNumber int
+var yearNumber int
 
 func Select(year int, day int) {
 	dayNumber = day
+	yearNumber = year
 	wd, _ := os.Getwd()
 	dayDir := fmt.Sprintf("%d/day%02d", year, day)
 	if wd == dayDir {
@@ -30,6 +36,45 @@ func Select(year int, day int) {
 			os.Exit(1)
 		}
 	}
+	MaybeDownload()
+}
+
+func MaybeDownload() {
+	getCookie := func() string {
+		homeDir := util.Must(user.Current()).HomeDir
+		cookieFile := path.Join(homeDir, ".aoc", "session")
+		fileBytes := util.Must(os.ReadFile(cookieFile))
+		return strings.TrimSpace(string(fileBytes))
+	}
+	hasContent := func(filename string) bool {
+		stat, err := os.Stat(filename)
+		return err == nil && stat.Size() > 0
+	}
+	download := func(url string, toFile string) {
+		dstFile := util.Must(os.Create(toFile))
+		req := util.Must(http.NewRequest("GET", url, nil))
+		req.AddCookie(&http.Cookie{
+			Name:  "session",
+			Value: getCookie(),
+		})
+		httpResp := util.Must(http.DefaultClient.Do(req))
+		if httpResp.StatusCode != 200 {
+			fmt.Println(httpResp)
+			fmt.Println(url)
+			fmt.Println(httpResp.Status)
+			os.Exit(1)
+		}
+		util.Must(io.Copy(dstFile, httpResp.Body))
+	}
+	//if !hasContent("part1.html") {
+	//	download(fmt.Sprintf("https://adventofcode.com/%d/day/%d", yearNumber, dayNumber), "part1.html")
+	//	// TODO: parse the HTML and make the markdown nice
+	//	fmt.Println("Downloaded part1.html")
+	//}
+	if !hasContent("input.txt") {
+		download(fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", yearNumber, dayNumber), "input.txt")
+		fmt.Println("Downloaded input.txt")
+	}
 }
 
 func Out() {
@@ -38,7 +83,7 @@ func Out() {
 	}
 	fmt.Println("---------------------------------------------------")
 	fmt.Print(summary.String())
-	fmt.Printf("Submit: https://adventofcode.com/2021/day/%d", dayNumber)
+	fmt.Printf("Submit: https://adventofcode.com/%d/day/%d \n", yearNumber, dayNumber)
 	summary.Reset()
 }
 
