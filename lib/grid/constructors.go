@@ -70,6 +70,26 @@ func FromDelimitedStringAsInt(s string, delim rune) Grid[int] {
 	return TransformGrid(FromDelimitedString(s, delim), unsafeAtoi)
 }
 
+func (grid Grid[T]) Copy() Grid[T] {
+	return Copy(grid)
+}
+
+func Copy[T comparable](old Grid[T]) Grid[T] {
+	newG := Grid[T]{}
+
+	newG.storage = make([]T, len(old.storage))
+	copy(newG.storage, old.storage)
+
+	newG.dimensions = make([]int, len(old.dimensions))
+	copy(newG.dimensions, old.dimensions)
+
+	newG.offsets = make([]int, len(old.offsets))
+	copy(newG.offsets, old.offsets)
+
+	newG.recalculateJumps()
+	return newG
+}
+
 // NewGrid produces a grid of requested size with a zero-point Origin (0, 0, ...)
 func NewGrid[T comparable](dimensions ...int) Grid[T] {
 	size := 1

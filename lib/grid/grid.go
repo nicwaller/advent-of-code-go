@@ -131,22 +131,33 @@ func (grid *Grid[T]) NeighboursSurround(c Cell, includeCentre bool) []Cell {
 			[]int{c[0] + 1},
 		}
 	case 2:
-		possibilities = []Cell{
-			[]int{c[0] - 1, c[1] - 1},
-			[]int{c[0] - 1, c[1] + 0},
-			[]int{c[0] - 1, c[1] + 1},
-			[]int{c[0] + 0, c[1] - 1},
-			//[]int{c[0] + 0, c[1] + 0},
-			[]int{c[0] + 0, c[1] + 1},
-			[]int{c[0] + 1, c[1] - 1},
-			[]int{c[0] + 1, c[1] + 0},
-			[]int{c[0] + 1, c[1] + 1},
+		if includeCentre {
+			possibilities = []Cell{
+				[]int{c[0] - 1, c[1] - 1},
+				[]int{c[0] - 1, c[1] + 0},
+				[]int{c[0] - 1, c[1] + 1},
+				[]int{c[0] + 0, c[1] - 1},
+				[]int{c[0] + 0, c[1] + 0},
+				[]int{c[0] + 0, c[1] + 1},
+				[]int{c[0] + 1, c[1] - 1},
+				[]int{c[0] + 1, c[1] + 0},
+				[]int{c[0] + 1, c[1] + 1},
+			}
+		} else {
+			possibilities = []Cell{
+				[]int{c[0] - 1, c[1] - 1},
+				[]int{c[0] - 1, c[1] + 0},
+				[]int{c[0] - 1, c[1] + 1},
+				[]int{c[0] + 0, c[1] - 1},
+				//[]int{c[0] + 0, c[1] + 0},
+				[]int{c[0] + 0, c[1] + 1},
+				[]int{c[0] + 1, c[1] - 1},
+				[]int{c[0] + 1, c[1] + 0},
+				[]int{c[0] + 1, c[1] + 1},
+			}
 		}
 	default:
 		panic("neighbours not implemented for higher dimensions")
-	}
-	if includeCentre {
-		possibilities = append(possibilities, c)
 	}
 	return iter.ListIterator[Cell](possibilities).Filter(grid.IsInGrid).List()
 }

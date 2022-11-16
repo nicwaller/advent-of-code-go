@@ -1,7 +1,9 @@
 package grid
 
 import (
+	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/iter"
+	"advent-of-code/lib/util"
 	"fmt"
 	"os"
 )
@@ -111,4 +113,39 @@ func (grid *Grid[T]) FloodFill(origin Cell, selFn func(v T) bool, fill T) int {
 		grid.storage[grid.OffsetFromCell(cell)] = fill
 	}
 	return len(sel)
+}
+
+func (grid *Grid[T]) Grow(by int, emptyFill T) {
+	newDims := make([]int, len(grid.dimensions))
+	copy(newDims, grid.dimensions)
+	for d, _ := range newDims {
+		newDims[d] += by * 2
+	}
+
+	newOffsets := make([]int, len(grid.offsets))
+	copy(newOffsets, grid.offsets)
+	for d, _ := range newOffsets {
+		newOffsets[d] -= by
+	}
+
+	sLen := f8l.Reduce(newDims, 1, util.IntProduct)
+	newStorage := make([]T, sLen)
+
+	//copy(newStorage, grid.storage)
+	tmpG := Grid[T]{
+		dimensions: newDims,
+		offsets:    newOffsets,
+		storage:    newStorage,
+	}
+	tmpG.Fill(emptyFill)
+	tmpG.recalculateJumps()
+	for cellIter := grid.Cells(); cellIter.Next(); {
+		cell := cellIter.Value()
+		tmpG.Set(cell, grid.Get(cell))
+	}
+
+	grid.dimensions = newDims
+	grid.offsets = newOffsets
+	grid.storage = newStorage
+	grid.recalculateJumps()
 }

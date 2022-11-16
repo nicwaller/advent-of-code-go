@@ -33,9 +33,13 @@ func Day(day int) {
 }
 
 func Out() {
+	if summary.Len() == 0 {
+		return
+	}
 	fmt.Println("---------------------------------------------------")
 	fmt.Print(summary.String())
 	fmt.Printf("Submit: https://adventofcode.com/2021/day/%d", dayNumber)
+	summary.Reset()
 }
 
 //func IsSample() bool {
