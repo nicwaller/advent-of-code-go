@@ -193,3 +193,10 @@ func Must[T any](result T, err9 error) T {
 	}
 	return result
 }
+
+func Pair[T any](tList []T) (T, T) {
+	if len(tList) != 2 {
+		panic(len(tList))
+	}
+	return tList[0], tList[1]
+}

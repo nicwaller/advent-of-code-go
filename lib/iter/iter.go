@@ -2,6 +2,7 @@ package iter
 
 import (
 	"errors"
+	"fmt"
 )
 
 // I really like itertools -NW
@@ -241,6 +242,21 @@ func (iter Iterator[T]) Skip(count int) error {
 		}
 	}
 	return nil
+}
+
+func (iter Iterator[T]) Echo() Iterator[T] {
+	return Iterator[T]{
+		Next: func() bool {
+			if iter.Next() {
+				fmt.Println(iter.Value())
+				return true
+			}
+			return false
+		},
+		Value: func() T {
+			return iter.Value()
+		},
+	}
 }
 
 func (iter Iterator[T]) MustTakeArray(count int) []T {
