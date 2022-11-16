@@ -134,6 +134,15 @@ func IntProduct(a int, b int) int {
 }
 
 //goland:noinspection GoUnusedExportedFunction
+func IntProductV(a ...int) int {
+	r := 1
+	for _, v := range a {
+		r *= v
+	}
+	return r
+}
+
+//goland:noinspection GoUnusedExportedFunction
 func IntAbs(a int) int {
 	if a < 0 {
 		return 0 - a

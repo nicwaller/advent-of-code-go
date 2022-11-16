@@ -1,6 +1,7 @@
 package aoc
 
 import (
+	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/grid"
 	"advent-of-code/lib/iter"
 	"advent-of-code/lib/util"
@@ -66,11 +67,13 @@ func MaybeDownload() {
 		}
 		util.Must(io.Copy(dstFile, httpResp.Body))
 	}
-	//if !hasContent("part1.html") {
-	//	download(fmt.Sprintf("https://adventofcode.com/%d/day/%d", yearNumber, dayNumber), "part1.html")
-	//	// TODO: parse the HTML and make the markdown nice
-	//	fmt.Println("Downloaded part1.html")
-	//}
+	if !hasContent("part1.md") {
+		url := fmt.Sprintf("https://adventofcode.com/%d/day/%d", yearNumber, dayNumber)
+		fmt.Println(url)
+		//	download(url, "part1.html")
+		//	// TODO: parse the HTML and make the markdown nice
+		//	fmt.Println("Downloaded part1.html")
+	}
 	if !hasContent("input.txt") {
 		download(fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", yearNumber, dayNumber), "input.txt")
 		fmt.Println("Downloaded input.txt")
@@ -107,9 +110,13 @@ func Run(run RunFunc) {
 
 func Test(run RunFunc, filename string, p1 string, p2 string) {
 	inputFilename = filename
-	_, err := os.Stat(filename)
+	st, err := os.Stat(filename)
 	if err != nil {
 		summary.WriteString("❌ Missing File (" + filename + ")\n")
+		return
+	}
+	if st.Size() == 0 {
+		summary.WriteString("❌ Empty File (" + filename + ")\n")
 		return
 	}
 	var p1Actual string
@@ -174,6 +181,12 @@ func InputString() string {
 //goland:noinspection GoUnusedExportedFunction
 func InputLines() []string {
 	return util.ReadLines(inputFilename).List()
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func InputLinesInt() []int {
+	lines := util.ReadLines(inputFilename).List()
+	return f8l.Map[string, int](lines, util.UnsafeAtoi)
 }
 
 //goland:noinspection GoUnusedExportedFunction
