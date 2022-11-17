@@ -25,10 +25,26 @@ func run(p1 *string, p2 *string) {
 
 	start, _, _ := g.NodeByName("COM")
 	count := 0
+	var pathToMe []int
+	var pathToSanta []int
 	g.DFS(start, func(v int, label string, _ *bool, path []int) {
 		count += len(path)
+		if label == "YOU" {
+			pathToMe = path
+		} else if label == "SAN" {
+			pathToSanta = path
+		}
 	})
 	*p1 = strconv.Itoa(count)
 
-	*p2 = strconv.Itoa(0)
+	// find common prefix
+	prefixLen := 0
+	for i := 0; i < util.IntMin(len(pathToSanta), len(pathToMe)); i++ {
+		if pathToSanta[i] != pathToMe[i] {
+			prefixLen = i
+			break
+		}
+	}
+	p2v := (len(pathToSanta) - prefixLen) + (len(pathToMe) - prefixLen)
+	*p2 = strconv.Itoa(p2v)
 }
