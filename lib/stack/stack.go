@@ -52,6 +52,10 @@ func (stack *Stack[T]) Peek() T {
 	return stack.items[stack.ptr]
 }
 
+func (stack *Stack[T]) Empty() bool {
+	return stack.ptr == -1
+}
+
 // Iterator starts at the top of the stack
 func (stack *Stack[T]) Iterator() iter.Iterator[T] {
 	var cur T
@@ -65,4 +69,10 @@ func (stack *Stack[T]) Iterator() iter.Iterator[T] {
 			return cur
 		},
 	}
+}
+
+func (stack *Stack[T]) List() []T {
+	c := make([]T, len(stack.items))
+	copy(c, stack.items)
+	return c
 }

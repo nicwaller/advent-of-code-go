@@ -1,6 +1,7 @@
 package grapheasy
 
 import (
+	"advent-of-code/lib/stack"
 	"fmt"
 	"github.com/yourbasic/graph"
 )
@@ -88,6 +89,38 @@ func (g *Graph[T]) Print() {
 	fmt.Println(g.nodeNames)
 	fmt.Println(g.nodeContext)
 	fmt.Println(g.underlying)
+}
+
+// TODO: is this pre-order or in-order?
+// TODO: does it also make sense to implement this as an iterator?
+func (g *Graph[T]) DFS(origin int, fn func(v int, label string, ctx *T, path []int)) {
+	s := stack.NewStack[int]()
+	s.Push(origin)
+	parents := make([]int, g.Underlying().Order())
+	parents[origin] = -1
+	path := func(v int) []int {
+		pathStack := stack.NewStack[int]()
+		for {
+			parent := parents[v]
+			if parent == -1 {
+				return pathStack.Iterator().List()
+			} else {
+				pathStack.Push(parent)
+				v = parent
+			}
+		}
+	}
+	for !s.Empty() {
+		visitNodeId := s.MustPop()
+		_, label, ctx := g.NodeById(visitNodeId)
+		fn(visitNodeId, *label, ctx, path(visitNodeId))
+		g.Underlying().Visit(visitNodeId, func(w int, c int64) bool {
+			s.Push(w)
+			parents[w] = visitNodeId
+			return false
+		})
+	}
+
 }
 
 // the underlying does not support disconnected nodes
