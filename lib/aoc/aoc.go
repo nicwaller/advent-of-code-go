@@ -126,23 +126,23 @@ func Test(run RunFunc, filename string, p1 string, p2 string) {
 		// skip
 	} else if p1 == p1Actual {
 		summary.WriteString(fmt.Sprintf(
-			"%s %-12s part %d (\"%s\")\n",
+			"%s %-12s part %d (%q)\n",
 			"✅  ok  ", filename, 1, p1Actual))
 
 	} else {
 		summary.WriteString(fmt.Sprintf(
-			"%s %-12s part %d (expected %s but got %s)\n",
+			"%s %-12s part %d (expected %q but got %q)\n",
 			"❌  fail", filename, 1, p1, p1Actual))
 	}
 	if p2 == "" {
 		//summary.WriteString("⏸ Ignoring result from part 2\n")
 	} else if p2 == p2Actual {
 		summary.WriteString(fmt.Sprintf(
-			"%s %-12s part %d (\"%s\")\n",
+			"%s %-12s part %d (%q)\n",
 			"✅  ok  ", filename, 2, p2Actual))
 	} else {
 		summary.WriteString(fmt.Sprintf(
-			"%s %-12s part %d (expected %s but got %s)\n",
+			"%s %-12s part %d (expected %q but got %q)\n",
 			"❌  fail", filename, 2, p2, p2Actual))
 	}
 }
