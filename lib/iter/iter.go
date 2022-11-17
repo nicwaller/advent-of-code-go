@@ -14,6 +14,9 @@ type Iterator[T any] struct {
 }
 
 func StringIterator(s string, step int) Iterator[string] {
+	if step <= 0 {
+		panic(step)
+	}
 	offset := -1
 	return Iterator[string]{
 		Next: func() bool {
@@ -163,8 +166,12 @@ func SlidingWindow[T any](windowSize int, iter Iterator[T]) Iterator[[]T] {
 			return true
 		},
 		Value: func() []T {
-			// I'm not convinced the memory performance of append() is good here
-			return append(window[index:], window[:index]...)
+			// Yes, it's necessary to make a new slice here
+			// so that results don't change with future .Next() operations
+			ret := make([]T, windowSize)
+			copy(ret[:], window[index:])
+			copy(ret[index:], window[:index])
+			return ret
 		},
 	}
 
@@ -244,9 +251,10 @@ func (iter Iterator[T]) Skip(count int) error {
 	return nil
 }
 
-func (iter Iterator[T]) Go() {
+func (iter Iterator[T]) Go() Iterator[T] {
 	for iter.Next() {
 	}
+	return iter
 }
 
 func (iter Iterator[T]) Echo() Iterator[T] {
@@ -309,7 +317,6 @@ func (iter Iterator[T]) List() []T {
 		list = append(list, iter.Value())
 	}
 	return list
-
 }
 
 func (iter Iterator[T]) Count() int {
