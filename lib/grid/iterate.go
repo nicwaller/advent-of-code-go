@@ -25,11 +25,11 @@ func (grid *Grid[T]) Cells() iter.Iterator[Cell] {
 	}
 }
 
-func (grid *Grid[T]) Filter(filterFn func(v T) bool) iter.Iterator[Cell] {
+func (grid *Grid[T]) Filter(filterFn func(Cell, T) bool) iter.Iterator[Cell] {
 	return grid.Cells().Filter(func(cell Cell) bool {
 		offset := grid.OffsetFromCell(cell)
 		value := grid.storage[offset]
-		return filterFn(value)
+		return filterFn(cell, value)
 	})
 }
 
