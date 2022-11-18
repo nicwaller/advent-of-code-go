@@ -65,8 +65,8 @@ func (grid *Grid[T]) Set(cell Cell, v T) {
 	grid.storage[grid.OffsetFromCell(cell)] = v
 }
 
-func (grid *Grid[T]) Values() *[]T {
-	return &grid.storage
+func (grid *Grid[T]) Values() []T {
+	return grid.storage
 }
 
 func (grid *Grid[T]) ValuesIterator() iter.Iterator[T] {

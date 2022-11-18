@@ -17,7 +17,7 @@ func StringIterator(s string, step int) Iterator[string] {
 	if step <= 0 {
 		panic(step)
 	}
-	offset := -1
+	offset := -step
 	return Iterator[string]{
 		Next: func() bool {
 			offset += step
