@@ -22,6 +22,7 @@ type RunFunc func(p1 *string, p2 *string)
 var summary strings.Builder
 var dayNumber int
 var yearNumber int
+var allTestsPassed = true
 
 func Select(year int, day int) {
 	dayNumber = day
@@ -86,7 +87,9 @@ func Out() {
 	}
 	fmt.Println("---------------------------------------------------")
 	fmt.Print(summary.String())
-	fmt.Printf("Submit: https://adventofcode.com/%d/day/%d \n", yearNumber, dayNumber)
+	if allTestsPassed {
+		fmt.Printf("Submit: https://adventofcode.com/%d/day/%d \n", yearNumber, dayNumber)
+	}
 	summary.Reset()
 }
 
@@ -113,10 +116,12 @@ func Test(run RunFunc, filename string, p1 string, p2 string) {
 	st, err := os.Stat(filename)
 	if err != nil {
 		summary.WriteString("❌ Missing File (" + filename + ")\n")
+		allTestsPassed = false
 		return
 	}
 	if st.Size() == 0 {
 		summary.WriteString("❌ Empty File (" + filename + ")\n")
+		allTestsPassed = false
 		return
 	}
 	var p1Actual string
@@ -130,6 +135,7 @@ func Test(run RunFunc, filename string, p1 string, p2 string) {
 			"✅  ok  ", filename, 1, p1Actual))
 
 	} else {
+		allTestsPassed = false
 		summary.WriteString(fmt.Sprintf(
 			"%s %-12s part %d (expected %q but got %q)\n",
 			"❌  fail", filename, 1, p1, p1Actual))
@@ -141,6 +147,7 @@ func Test(run RunFunc, filename string, p1 string, p2 string) {
 			"%s %-12s part %d (%q)\n",
 			"✅  ok  ", filename, 2, p2Actual))
 	} else {
+		allTestsPassed = false
 		summary.WriteString(fmt.Sprintf(
 			"%s %-12s part %d (expected %q but got %q)\n",
 			"❌  fail", filename, 2, p2, p2Actual))

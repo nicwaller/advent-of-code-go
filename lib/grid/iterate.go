@@ -2,6 +2,7 @@ package grid
 
 import (
 	"advent-of-code/lib/iter"
+	"advent-of-code/lib/util"
 )
 
 func (grid *Grid[T]) Cells() iter.Iterator[Cell] {
@@ -20,7 +21,7 @@ func (grid *Grid[T]) Cells() iter.Iterator[Cell] {
 			return offset < len(grid.storage)
 		},
 		Value: func() Cell {
-			return curCell
+			return util.Copy(curCell)
 		},
 	}
 }
@@ -70,5 +71,29 @@ func (grid *Grid[T]) floodSelect(current Cell, selFn func(v T) bool, seen *[]Cel
 		}
 		*seen = append(*seen, neighbour)
 		grid.floodSelect(neighbour, selFn, seen)
+	}
+}
+
+// Ray does not count origin, right?
+func (grid *Grid[T]) Ray(origin Cell, vec []int) iter.Iterator[Cell] {
+	current := util.Copy(origin)
+	nonzero := false
+	for d, _ := range vec {
+		//current[d] -= vec[d]
+		nonzero = nonzero || (vec[d] != 0)
+	}
+	if !nonzero {
+		return iter.EmptyIterator[Cell]()
+	}
+	return iter.Iterator[Cell]{
+		Next: func() bool {
+			for d, _ := range vec {
+				current[d] += vec[d]
+			}
+			return grid.IsInGrid(current)
+		},
+		Value: func() Cell {
+			return util.Copy(current)
+		},
 	}
 }

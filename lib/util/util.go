@@ -204,3 +204,9 @@ func Pair[T any](tList []T) (T, T) {
 	}
 	return tList[0], tList[1]
 }
+
+func Copy[T any](original []T) []T {
+	c := make([]T, len(original))
+	copy(c, original)
+	return c
+}
