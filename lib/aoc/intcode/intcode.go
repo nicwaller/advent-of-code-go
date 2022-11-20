@@ -58,11 +58,12 @@ func NewVM(input <-chan int, output chan<- int) *IntcodeVM {
 		if ivm.input == nil {
 			panic("VM requested input, but input channel is not defined")
 		}
+		timeout := 250 * time.Millisecond
 		select {
 		case i := <-ivm.input:
 			tape[argv[0]] = i
-		case <-time.After(10 * time.Millisecond):
-			fmt.Println("No input response after 10 ms")
+		case <-time.After(timeout):
+			fmt.Printf("No input available after waiting %v\n", timeout)
 			panic("VM cannot read input")
 		}
 	})
@@ -75,7 +76,7 @@ func NewVM(input <-chan int, output chan<- int) *IntcodeVM {
 		outVal := tape[argv[0]]
 		select {
 		case ivm.output <- outVal:
-			//fmt.Println(outVal)
+			// okay
 		case <-time.After(100 * time.Millisecond):
 			panic("VM output was blocked for at least 10 ms")
 		}
