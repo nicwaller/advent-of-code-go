@@ -23,8 +23,10 @@ For example, consider the program 1002,4,3,4,33.
 
 The first instruction, 1002,4,3,4, is a multiply instruction - the rightmost two digits of the first value, 02, indicate opcode 2, multiplication. Then, going right to left, the parameter modes are 0 (hundreds digit), 1 (thousands digit), and 0 (ten-thousands digit, not present and therefore zero):
 
-ABCDE
-1002
+```
+ABC DE
+ 10 02
+```
 
 DE - two-digit opcode,      02 == opcode 2
 C - mode of 1st parameter,  0 == position mode

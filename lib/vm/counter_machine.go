@@ -1,13 +1,19 @@
 package vm
 
+import (
+	"advent-of-code/lib/util"
+	"fmt"
+)
+
 type CounterMachine[T comparable] struct {
-	tape    []T
 	opcodes map[T]Operation[T]
+	halt    bool
+	pc      int
 }
 
 type Operation[T comparable] struct {
 	argc int
-	run  func(argv []T, tape []T, halt func())
+	run  func(argv []T, tape []T, vm *CounterMachine[T])
 }
 
 //goland:noinspection GoUnusedExportedFunction
@@ -17,57 +23,53 @@ func NewCounterMachine[T comparable]() CounterMachine[T] {
 	}
 }
 
-func (cm *CounterMachine[T]) Op(opcode T, argCount int, run func(registers []T, tape []T, halt func())) {
+func (cm *CounterMachine[T]) Op(opcode T, argCount int, run func(argv []T, tape []T, vm *CounterMachine[T])) {
 	cm.opcodes[opcode] = Operation[T]{
 		argc: argCount,
 		run:  run,
 	}
 }
 
+func (cm *CounterMachine[T]) Halt() {
+	cm.halt = true
+}
+
+func (cm *CounterMachine[T]) Jump(toPC int) {
+	cm.pc = toPC
+}
+
 func (cm *CounterMachine[T]) Exec(program []T) {
+	exec(cm, program)
+}
+
+func exec[T comparable](cm *CounterMachine[T], program []T) {
 	// do NOT make a copy
 	// the caller can do that, if they want
 	// or the tape can be mutated in-place
-
 	// pc = Process Counter
-	pc := 0
+	//pc := 0
 	args := make([]T, 3)
-	halt := false
-	haltFn := func() { halt = true }
-	for !halt {
-		ins, found := cm.opcodes[program[pc]]
+	var opcode T
+	var ins Operation[T]
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println(r)
+			fmt.Printf("VM execution failed!\n PC=%d\n Opcode=%v\n Args=%v\n", cm.pc, opcode, args[:ins.argc])
+			panic(cm.pc)
+		}
+	}()
+	for cm.halt = false; !cm.halt; {
+		var found bool
+		opcode = program[cm.pc]
+		//fmt.Println(opcode)
+		ins, found = cm.opcodes[opcode]
 		if !found {
-			panic(pc)
+			fmt.Printf("Invalid Opcode: %v\n  Program Counter: %d\n", opcode, cm.pc)
+			fmt.Println(program[util.IntMax(0, cm.pc-4):util.IntMin(len(program)-1, cm.pc+4)])
+			panic(cm.pc)
 		}
-		copy(args, program[pc+1:pc+ins.argc+1]) // TODO: verify correctness
-		ins.run(args, program, haltFn)
-		pc += 1 + ins.argc
+		copy(args, program[cm.pc+1:cm.pc+ins.argc+1])
+		cm.pc += 1 + ins.argc
+		ins.run(args[:ins.argc], program, cm)
 	}
-}
-
-//goland:noinspection GoUnusedFunction
-func exec(progOrig []int) int {
-	prog := make([]int, len(progOrig))
-	copy(prog, progOrig)
-
-	ptr := 0
-	for {
-		opcode := prog[ptr]
-		if opcode == 99 {
-			break
-		}
-		op1 := prog[prog[ptr+1]]
-		op2 := prog[prog[ptr+2]]
-		register := prog[ptr+3]
-		switch opcode {
-		case 1: // add
-			prog[register] = op1 + op2
-		case 2: // mult
-			prog[register] = op1 * op2
-		default:
-			panic(opcode)
-		}
-		ptr += 4
-	}
-	return prog[0]
 }
