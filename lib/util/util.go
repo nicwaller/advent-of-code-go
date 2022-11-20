@@ -210,3 +210,7 @@ func Copy[T any](original []T) []T {
 	copy(c, original)
 	return c
 }
+
+func Last[T any](v []T) T {
+	return v[len(v)-1]
+}

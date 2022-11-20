@@ -443,5 +443,83 @@ func ProductV[T any](a ...[]T) Iterator[[]T] {
 	}
 }
 
+func Permute[T any](original []T) Iterator[[]T] {
+	A := make([]T, len(original))
+	copy(A, original)
+	// This implements Heap's Algorithm
+	// https://en.wikipedia.org/wiki/Heap%27s_algorithm
+	swap := func(i int, j int) {
+		tmp := A[i]
+		A[i] = A[j]
+		A[j] = tmp
+	}
+
+	// TODO: send the first, non-permuted one
+	c := make([]int, len(A))
+	i := 1
+
+	sentOriginal := false
+
+	return Iterator[[]T]{
+		Next: func() bool {
+			if !sentOriginal {
+				sentOriginal = true
+				return true
+			}
+			//fmt.Printf("i=%d c=%v A=%v\n", i, c, A)
+			//if i >= len(A) {
+			//	return false
+			//}
+			for {
+				if c[i] < i {
+					if i%2 == 0 {
+						swap(0, i)
+					} else {
+						swap(c[i], i)
+					}
+					//fmt.Printf("c[%d]++\n", i)
+					c[i]++
+					i = 1
+					break
+				} else {
+					c[i] = 0
+					i++
+				}
+				if i >= len(A) {
+					return false
+				}
+			}
+			return true
+		},
+		Value: func() []T {
+			ret := make([]T, len(original))
+			copy(ret, A)
+			return ret
+		},
+	}
+
+	//    // i acts similarly to a stack pointer
+	//    i := 1;
+	//    while i < n do
+	//        if  c[i] < i then
+	//            if i is even then
+	//                swap(A[0], A[i])
+	//            else
+	//                swap(A[c[i]], A[i])
+	//            end if
+	//            output(A)
+	//            // Swap has occurred ending the for-loop. Simulate the increment of the for-loop counter
+	//            c[i] += 1
+	//            // Simulate recursive call reaching the base case by bringing the pointer to the base case analog in the array
+	//            i := 1
+	//        else
+	//            // Calling generate(i+1, A) has ended as the for-loop terminated. Reset the state and simulate popping the stack by incrementing the pointer.
+	//            c[i] := 0
+	//            i += 1
+	//        end if
+	//    end while
+
+}
+
 // TODO: iter.Chunk(chunkSize int)
 // iter.Flatten() would be useful in a dynamically typed language, but I don't think it makes sense for Go.
