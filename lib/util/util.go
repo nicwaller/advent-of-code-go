@@ -214,3 +214,11 @@ func Copy[T any](original []T) []T {
 func Last[T any](v []T) T {
 	return v[len(v)-1]
 }
+
+func KeyCount[K comparable, V any](m map[K]V) int {
+	count := 0
+	for _ = range m {
+		count++
+	}
+	return count
+}
