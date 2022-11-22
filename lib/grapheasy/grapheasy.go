@@ -54,13 +54,13 @@ func (g *Graph[T]) AddBoth(label1 string, label2 string) {
 	g.underlying.AddBoth(g.node(label1), g.node(label2))
 }
 
-func (g *Graph[T]) AddCost(from string, to string, cost int64) {
-	g.underlying.AddCost(g.node(from), g.node(to), cost)
+func (g *Graph[T]) AddCost(from string, to string, cost int) {
+	g.underlying.AddCost(g.node(from), g.node(to), int64(cost))
 }
 
-func (g *Graph[T]) AddBothCost(from string, to string, cost int64) {
-	g.underlying.AddCost(g.node(from), g.node(to), cost)
-	g.underlying.AddCost(g.node(to), g.node(from), cost)
+func (g *Graph[T]) AddBothCost(from string, to string, cost int) {
+	g.underlying.AddCost(g.node(from), g.node(to), int64(cost))
+	g.underlying.AddCost(g.node(to), g.node(from), int64(cost))
 }
 
 func (g *Graph[T]) NodeById(id int) (int, *string, *T) {
@@ -69,6 +69,12 @@ func (g *Graph[T]) NodeById(id int) (int, *string, *T) {
 
 func (g *Graph[T]) NodeByName(label string) (int, *string, *T) {
 	return g.NodeById(g.node(label))
+}
+
+func (g *Graph[T]) Cost(node1 string, node2 string) int {
+	n1, _, _ := g.NodeByName(node1)
+	n2, _, _ := g.NodeByName(node2)
+	return int(g.underlying.Cost(n1, n2))
 }
 
 func (g *Graph[T]) node(label string) int {

@@ -44,6 +44,10 @@ type AnalyzeResult[T comparable] struct {
 }
 
 func Analyze[T constraints.Ordered](list []T) AnalyzeResult[T] {
+	if len(list) == 0 {
+		var empty AnalyzeResult[T]
+		return empty
+	}
 	min := list[0]
 	max := list[0]
 
