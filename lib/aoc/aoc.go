@@ -7,6 +7,7 @@ import (
 	"advent-of-code/lib/util"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"os/user"
@@ -109,6 +110,18 @@ func Run(run RunFunc) {
 	summary.WriteString(fmt.Sprintf("Part 1: %v\n", p1Actual))
 	summary.WriteString(fmt.Sprintf("Part 2: %v\n", p2Actual))
 	Out()
+}
+
+func TestLiteral(run RunFunc, content string, p1 string, p2 string) {
+	file, err := os.CreateTemp("", "aoc")
+	if err != nil {
+		log.Fatal(err)
+	}
+	_ = util.Must(file.WriteString(content))
+	defer func(name string) {
+		_ = os.Remove(name)
+	}(file.Name())
+	Test(run, file.Name(), p1, p2)
 }
 
 func Test(run RunFunc, filename string, p1 string, p2 string) {

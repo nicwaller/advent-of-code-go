@@ -98,7 +98,7 @@ func SliceEnclosing(cells ...Cell) Slice {
 	for _, c := range cells {
 		for d := 0; d < nDimensions; d++ {
 			slice[d].Origin = util.IntMin(slice[d].Origin, c[d])
-			slice[d].Terminus = util.IntMax(slice[d].Terminus, c[d])
+			slice[d].Terminus = util.IntMax(slice[d].Terminus, c[d]+1)
 		}
 	}
 	return slice
