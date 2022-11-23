@@ -1,6 +1,7 @@
 package iter
 
 import (
+	"advent-of-code/lib/queue"
 	"errors"
 	"fmt"
 )
@@ -144,15 +145,15 @@ func EmptyIterator[T any]() Iterator[T] {
 //
 // It's also not possible to implement Pairwise() with multiple-return :(
 func SlidingWindow[T any](windowSize int, iter Iterator[T]) Iterator[[]T] {
-	window := make([]T, windowSize)
-	index := 0
+	buf := queue.New[T](windowSize + 2)
+	var none T
+	buf.Push(none)
 	// pre-fill the window (abort if there are too few items)
 	for i := 0; i < windowSize-1; i++ {
 		if !iter.Next() {
 			return EmptyIterator[[]T]()
 		}
-		window[index] = iter.Value()
-		index = (index + 1) % windowSize
+		_ = buf.Push(iter.Value())
 	}
 	// return windowed results
 	// TODO: clever circular queue bullshit
@@ -161,17 +162,12 @@ func SlidingWindow[T any](windowSize int, iter Iterator[T]) Iterator[[]T] {
 			if !iter.Next() {
 				return false
 			}
-			window[index] = iter.Value()
-			index = (index + 1) % windowSize
+			_ = buf.Push(iter.Value())
+			_, _ = buf.Pop()
 			return true
 		},
 		Value: func() []T {
-			// Yes, it's necessary to make a new slice here
-			// so that results don't change with future .Next() operations
-			ret := make([]T, windowSize)
-			copy(ret[:], window[index:])
-			copy(ret[index:], window[:index])
-			return ret
+			return buf.Items()
 		},
 	}
 
