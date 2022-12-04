@@ -2,6 +2,7 @@ package analyze
 
 import "golang.org/x/exp/constraints"
 
+// TODO: re-implement this as a leaderboard with optional size 1
 type Box[T constraints.Ordered] struct {
 	seenFirst bool
 	Min       T
