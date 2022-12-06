@@ -28,6 +28,20 @@ func FromIterable[T comparable](iter iter.Iterator[T]) Set[T] {
 	return s
 }
 
+func FromSlice[T comparable](items []T) Set[T] {
+	s := New[T]()
+	s.Extend(items...)
+	return s
+}
+
+func FromString(s string) Set[rune] {
+	newSet := New[rune]()
+	for _, r := range s {
+		newSet.Add(r)
+	}
+	return newSet
+}
+
 func Union[T comparable](sets ...Set[T]) Set[T] {
 	union := New[T]()
 	for _, input := range sets {
