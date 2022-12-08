@@ -84,6 +84,31 @@ func (grid *Grid[T]) All() Slice {
 	return s
 }
 
+// ..|....
+// ..|....
+// --*----
+// ..|....
+// ..|....
+// AxialExtents returns a sequence of cell pairs where each
+// cell pair defines a line, all the lines intersect at origin,
+// and the cell pairs all exist at the edges of the grid
+//func AxialExtents(origin Cell) []iter.Iterator[Cell] {
+//
+//}
+
+func (grid *Grid[T]) NeighbourRays(c Cell) []iter.Iterator[Cell] {
+	rays := make([]iter.Iterator[Cell], 2*len(grid.dimensions))
+	for d := 0; d < len(grid.dimensions); d++ {
+		downVec := make([]int, len(c))
+		downVec[d] = -1
+		upVec := make([]int, len(c))
+		upVec[d] = 1
+		rays[2*d+0] = grid.Ray(c, downVec)
+		rays[2*d+1] = grid.Ray(c, upVec)
+	}
+	return rays
+}
+
 func (grid *Grid[T]) NeighboursAdjacent(c Cell, includeCentre bool) []Cell {
 	possibilities := make([]Cell, 0)
 	// this is hard to write n-dimensionally!

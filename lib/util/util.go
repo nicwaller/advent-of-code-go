@@ -205,6 +205,13 @@ func Pair[T any](tList []T) (T, T) {
 	return tList[0], tList[1]
 }
 
+func Clear[T any](slice []T) {
+	var none T
+	for i, _ := range slice {
+		slice[i] = none
+	}
+}
+
 func Copy[T any](original []T) []T {
 	c := make([]T, len(original))
 	copy(c, original)
