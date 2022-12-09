@@ -18,25 +18,15 @@ func main() {
 }
 
 func tailChase(head *grid.Cell, tail *grid.Cell) {
-	if (*tail)[0] == (*head)[0] {
-		d := (*head)[1] - (*tail)[1]
-		if util.IntAbs(d) == 2 {
-			(*tail)[1] += d / 2
-		}
-	} else if (*tail)[1] == (*head)[1] {
-		d := (*head)[0] - (*tail)[0]
-		if util.IntAbs(d) == 2 {
-			(*tail)[0] += d / 2
-		}
-	} else if (*tail)[0] != (*head)[0] && (*tail)[1] != (*head)[1] && grid.ManhattanDistance(*head, *tail) > 2 {
-		for d := 0; d < 2; d++ {
-			if (*tail)[d] < (*head)[d] {
-				(*tail)[d]++
-			}
-			if (*tail)[d] > (*head)[d] {
-				(*tail)[d]--
-			}
-		}
+	switch grid.ChebyshevDistance(*head, *tail) {
+	case 0:
+		// rope segments may overlap, especially at the beginning
+	case 1:
+		// adjacent segments don't need to move
+	case 2:
+		v := util.VecDiff(*head, *tail)
+		util.VecClamp(v, 1)
+		util.VecAdd(*tail, v)
 	}
 }
 

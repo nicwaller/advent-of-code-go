@@ -1,6 +1,10 @@
 package grid
 
-import "advent-of-code/lib/iter"
+import (
+	"advent-of-code/lib/f8l"
+	"advent-of-code/lib/iter"
+	"advent-of-code/lib/util"
+)
 
 type Grid[T comparable] struct {
 	storage []T
@@ -221,4 +225,12 @@ func ManhattanDistance(a Cell, b Cell) int {
 		totalDist += IntAbs(a[d] - b[d])
 	}
 	return totalDist
+}
+
+func ChebyshevDistance(a Cell, b Cell) int {
+	c := make([]int, len(a))
+	for d, _ := range c {
+		c[d] = IntAbs(a[d] - b[d])
+	}
+	return f8l.Reduce(c, 0, util.IntMax)
 }

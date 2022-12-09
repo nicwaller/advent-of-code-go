@@ -255,3 +255,21 @@ func VecAdd(cell []int, addend []int) {
 		cell[d] += addend[d]
 	}
 }
+
+func VecDiff(cell []int, subend []int) []int {
+	diff := make([]int, len(cell))
+	if len(cell) != len(subend) {
+		panic("dimensions must be equal")
+	}
+	for d := 0; d < len(cell); d++ {
+		diff[d] = cell[d] - subend[d]
+	}
+	return diff
+}
+
+// mostly useful for "unitize" (clamp to 1)
+func VecClamp(cell []int, clamp int) {
+	for d := 0; d < len(cell); d++ {
+		cell[d] = IntMin(clamp, IntMax(-clamp, cell[d]))
+	}
+}
