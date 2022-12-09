@@ -12,6 +12,17 @@ type Grid[T comparable] struct {
 
 type Cell []int
 
+func CellHash(cell Cell) int {
+	switch len(cell) {
+	case 1:
+		return cell[0]
+	case 2:
+		return (cell[0]&0xFFFFFFFF)<<32 + cell[1]&0xFFFFFFFF
+	default:
+		panic("cannot hash n-dimensional cell")
+	}
+}
+
 func IsZeroCell(c Cell) bool {
 	for _, v := range c {
 		if v != 0 {
@@ -199,4 +210,15 @@ func (grid *Grid[T]) IsInGrid(c Cell) bool {
 		}
 	}
 	return true
+}
+
+func ManhattanDistance(a Cell, b Cell) int {
+	if len(a) != len(b) {
+		panic("cells have unequal dimensions")
+	}
+	totalDist := 0
+	for d := 0; d < len(a); d++ {
+		totalDist += IntAbs(a[d] - b[d])
+	}
+	return totalDist
 }

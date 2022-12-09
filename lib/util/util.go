@@ -229,3 +229,29 @@ func KeyCount[K comparable, V any](m map[K]V) int {
 	}
 	return count
 }
+
+func Neq(n int) func(int) bool {
+	return func(i int) bool {
+		return n != i
+	}
+}
+
+// It's critical that defaultValue is returned from a function
+// to ensure that each value in the slice is unique, not reused
+// I'm not sure how to copy an opaque defaultValue! -NW
+func Make[T any](n int, defaultValue func() T) []T {
+	slice := make([]T, n)
+	for i := 0; i < len(slice); i++ {
+		slice[i] = defaultValue()
+	}
+	return slice
+}
+
+func VecAdd(cell []int, addend []int) {
+	if len(cell) != len(addend) {
+		panic("dimensions must be equal")
+	}
+	for d := 0; d < len(cell); d++ {
+		cell[d] += addend[d]
+	}
+}
