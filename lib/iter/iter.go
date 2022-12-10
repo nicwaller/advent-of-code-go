@@ -1,9 +1,11 @@
 package iter
 
 import (
+	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/queue"
 	"errors"
 	"fmt"
+	"github.com/ernestosuarez/itertools"
 )
 
 // I really like itertools -NW
@@ -449,6 +451,21 @@ func ProductV[T any](a ...[]T) Iterator[[]T] {
 				res[d] = a[d][index[d]]
 			}
 			return res
+		},
+	}
+}
+
+func CombinationsN[T any](original []T, m int) Iterator[[]T] {
+	ch := itertools.GenCombinations(len(original), m)
+	var cur []T
+	return Iterator[[]T]{
+		Next: func() bool {
+			P, more := <-ch
+			cur = f8l.Map[int, T](P, func(i int) T { return original[i] })
+			return more
+		},
+		Value: func() []T {
+			return cur
 		},
 	}
 }
