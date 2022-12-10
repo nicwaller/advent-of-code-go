@@ -1,6 +1,7 @@
 package grapheasy
 
 import (
+	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/stack"
 	"fmt"
 	"github.com/yourbasic/graph"
@@ -91,10 +92,31 @@ func (g *Graph[T]) node(label string) int {
 }
 
 func (g *Graph[T]) Print() {
-	fmt.Println(g.nodeIds)
-	fmt.Println(g.nodeNames)
-	fmt.Println(g.nodeContext)
+	//fmt.Printf("Node IDs: %v\n", g.nodeIds)
+	fmt.Printf("Names: %v\n", g.nodeNames)
+	//fmt.Println(g.nodeNames)
+	//fmt.Println(g.nodeContext)
 	fmt.Println(g.underlying)
+}
+
+// Head returns the top of a directed acyclic graph
+func (g *Graph[T]) Head() (int, *string, *T) {
+	return g.NodeById(g.TopSort()[0])
+}
+
+// TopSort returns a list of node IDs in topological order
+// the first result is the head of the DAG
+func (g *Graph[T]) TopSort() []int {
+	topo, ok := graph.TopSort(g.Underlying())
+	if !ok {
+		panic("no topological sort available; is this a DAG?")
+	}
+
+	// the original TopSort() has a weird bug where it returns all the
+	// potential nodes that were never actually allocated,
+	// so we need to filter those out
+	topo = f8l.Filter(topo, func(v int) bool { return v < len(g.nodeNames) })
+	return topo
 }
 
 // TODO: is this pre-order or in-order?
