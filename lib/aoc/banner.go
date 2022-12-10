@@ -34,7 +34,7 @@ func bannerAlphabet() map[string]grid.Grid[bool] {
 ####.
 `
 	letters["G"] = `
-.##..
+.###.
 #..#.
 #....
 #.##.
@@ -72,6 +72,14 @@ func bannerAlphabet() map[string]grid.Grid[bool] {
 ###..
 #.#..
 #..#.
+`
+	letters["U"] = `
+#..#.
+#..#.
+#..#.
+#..#.
+#..#.
+.##..
 `
 	letters["Y"] = `
 #...#
