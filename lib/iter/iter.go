@@ -178,6 +178,20 @@ type IndexedValue[T any] struct {
 	value T
 }
 
+func Repeat[T any](iter Iterator[T]) Iterator[T] {
+	all := iter.List()
+	index := -1
+	return Iterator[T]{
+		Next: func() bool {
+			index = (index + 1) % len(all)
+			return true
+		},
+		Value: func() T {
+			return all[index]
+		},
+	}
+}
+
 func Enumerate[T any](iter Iterator[T]) Iterator[IndexedValue[T]] {
 	index := -1
 	var value T
