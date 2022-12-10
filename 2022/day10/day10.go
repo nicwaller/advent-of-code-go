@@ -4,7 +4,7 @@ import (
 	"advent-of-code/lib/aoc"
 	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/grid"
-	"advent-of-code/lib/queue"
+	"advent-of-code/lib/iter"
 	"advent-of-code/lib/util"
 	"strconv"
 	"strings"
@@ -18,54 +18,67 @@ func main() {
 	aoc.Out()
 }
 
+// decode a sequence of macro-instructions into microcode instructions
+// that take exactly one cycle to process
+func decode(ite iter.Iterator[string], next chan<- string) {
+	go func() {
+		for ite.Next() {
+			line := ite.Value()
+			switch strings.Fields(line)[0] {
+			case "noop":
+				next <- line
+			case "addx":
+				next <- "noop"
+				next <- line
+			default:
+				panic(line)
+			}
+		}
+		close(next)
+	}()
+}
+
 func run(p1 *string, p2 *string) {
 	crt := grid.NewGrid[string](6, 40)
 	crt.Fill(".")
 
 	X := 1
 	significantSignals := make([]int, 6)
-	lines := aoc.InputLinesIterator()
-	microQ := queue.New[string](10)
-	for cycle := 1; cycle <= 250; cycle++ {
-		signalStrength := cycle * X
-		if (cycle-20)%40 == 0 {
-			significantSignals[(cycle-20)/40] = signalStrength
-		}
-		//fmt.Printf("cycle:%d, X:%d, str:%d\n",
-		//	cycle, X, signalStrength)
+	microcode := make(chan string)
+	decode(aoc.InputLinesIterator(), microcode)
+	cycle := 0
 
-		cycleOffOne := cycle - 1
-		crtX := cycleOffOne % 40
+runLoop:
+	for {
+		crtX := cycle % 40
+		crtY := (cycle / 40) % 6
 		if util.IntAbs(crtX-X) <= 1 {
-			crtY := (cycleOffOne / 40) % 6
 			crt.Set(grid.Cell{crtY, crtX}, "#")
 		}
 
-		if microQ.Length() < 1 {
-			lines.Next()
-			nextInst := lines.Value()
-			if nextInst == "noop" {
-				_ = microQ.Push("noop")
-			} else {
-				_ = microQ.Push("noop")
-				_ = microQ.Push(nextInst)
-			}
+		// This is an uncomfortable, weird place for the increment.
+		// The increment is needed after CRT, but before sigSig calculation.
+		cycle++
+
+		if (cycle-20)%40 == 0 {
+			significantSignals[(cycle-20)/40] = cycle * X
 		}
 
-		uInst := util.Must(microQ.Pop())
-		operator := strings.Fields(uInst)[0]
+		uInst, channelStillOpen := <-microcode
+		if !channelStillOpen {
+			break runLoop
+		}
 
-		switch operator {
+		switch strings.Fields(uInst)[0] {
 		case "noop":
 			// pass
 		case "addx":
-			operand := util.UnsafeAtoi(strings.Fields(uInst)[1])
-			X += operand
+			X += util.UnsafeAtoi(strings.Fields(uInst)[1])
 		default:
-			panic(operator)
+			panic(uInst)
 		}
 	}
+
 	*p1 = strconv.Itoa(f8l.Sum(significantSignals))
-	crt.Print()
 	*p2 = aoc.Debannerize(crt, "#")
 }
