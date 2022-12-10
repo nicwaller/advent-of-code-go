@@ -57,6 +57,14 @@ func bannerAlphabet() map[string]grid.Grid[bool] {
 #..#.
 #..#.
 `
+	letters["J"] = `
+..##.
+...#.
+...#.
+...#.
+#..#.
+.##..
+`
 	letters["K"] = `
 #..#.
 #.#..
