@@ -194,6 +194,26 @@ func Repeat[T any](iter Iterator[T]) Iterator[T] {
 	}
 }
 
+func Oscillate[T any](iter Iterator[T]) Iterator[T] {
+	all := iter.List()
+	index := -1
+	v := 1
+	return Iterator[T]{
+		Next: func() bool {
+			if v == 1 && index == (len(all)-1) {
+				v = -1
+			} else if v == -1 && index == 0 {
+				v = 1
+			}
+			index += v
+			return true
+		},
+		Value: func() T {
+			return all[index]
+		},
+	}
+}
+
 func Enumerate[T any](iter Iterator[T]) Iterator[IndexedValue[T]] {
 	index := -1
 	var value T

@@ -17,6 +17,14 @@ func New[T any](size int) Queue[T] {
 	}
 }
 
+func FromSlice[T any](slice []T) Queue[T] {
+	q := New[T](len(slice) * 100)
+	for _, v := range slice {
+		_ = q.Push(v)
+	}
+	return q
+}
+
 func (q *Queue[T]) Push(v T) error {
 	if q.count >= len(q.items) {
 		return errors.New("overfull queue")
