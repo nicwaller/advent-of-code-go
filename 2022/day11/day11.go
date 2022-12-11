@@ -14,7 +14,7 @@ import (
 func main() {
 	aoc.Select(2022, 11)
 	aoc.Test(run, "sample.txt", "10605", "2713310158")
-	//aoc.Test(run, "input.txt", "55458", "14508081294")
+	aoc.Test(run, "input.txt", "55458", "14508081294")
 	aoc.Run(run)
 	aoc.Out()
 }
@@ -87,15 +87,10 @@ func run(p1 *string, p2 *string) {
 			for m.inventory.Length() > 0 {
 				monkeyInspections[monkeyN]++
 				itemScore, _ = m.inventory.Pop()
-				//fmt.Printf(" Monkey inspects an item with a worry level of %d:\n", itemScore)
 				itemScore = m.operation(itemScore)
-				//fmt.Printf("  Worry level becomes %d:\n", itemScore)
 				itemScore /= 3
-				//fmt.Printf("  Monkey gets bored with item. Worry level is divided by 3 to %d\n", itemScore)
 				sel := itemScore%m.testMod == 0
-				//fmt.Printf("  Current worry level divisible by 23? %v\n", sel)
 				target := m.targetSel[sel]
-				//fmt.Printf("  Item with worry level %d is thrown to monkey %d\n", itemScore, target)
 				err := monkeys[target].inventory.Push(itemScore)
 				if err != nil {
 					panic(err)

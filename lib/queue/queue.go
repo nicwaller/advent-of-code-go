@@ -17,8 +17,18 @@ func New[T any](size int) Queue[T] {
 	}
 }
 
+func (q *Queue[T]) Grow(margin int) {
+	olditems := q.Items()
+	q.items = make([]T, len(q.items)+margin)
+	q.head = 0
+	q.count = 0
+	for i := 0; i < len(olditems); i++ {
+		q.Push(olditems[i])
+	}
+}
+
 func FromSlice[T any](slice []T) Queue[T] {
-	q := New[T](len(slice) * 100)
+	q := New[T](len(slice))
 	for _, v := range slice {
 		_ = q.Push(v)
 	}
@@ -27,7 +37,7 @@ func FromSlice[T any](slice []T) Queue[T] {
 
 func (q *Queue[T]) Push(v T) error {
 	if q.count >= len(q.items) {
-		return errors.New("overfull queue")
+		q.Grow(q.count)
 	}
 	q.items[(q.head+q.count)%len(q.items)] = v
 	q.count++

@@ -95,3 +95,13 @@ func TestQueue_Length(t *testing.T) {
 		t.Errorf("Items() has wrong length")
 	}
 }
+
+func TestQueue_Grow(t *testing.T) {
+	q := New[string](2)
+	_ = q.Push("a")
+	_ = q.Push("b")
+	_ = q.Push("c")
+	fmt.Printf("Queue: count=%d (head=%d) %v\n", q.count, q.head, q.items)
+	q.Grow(5)
+	fmt.Printf("Queue: count=%d (head=%d) %v\n", q.count, q.head, q.items)
+}
