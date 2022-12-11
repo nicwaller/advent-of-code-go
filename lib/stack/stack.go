@@ -114,3 +114,7 @@ func (stack *Stack[T]) List() []T {
 	copy(c, stack.items)
 	return c
 }
+
+func (stack *Stack[T]) Height() int {
+	return stack.ptr + 1
+}
