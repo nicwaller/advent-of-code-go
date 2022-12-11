@@ -82,6 +82,7 @@ func (grid *Grid[T]) Height() int {
 	return grid.RowCount()
 }
 
+// FIXME: fix transpose (transpose+print = panic)
 func (grid *Grid[T]) Transpose() Grid[T] {
 	// TODO: implement this more cheaply?
 	// just invert the dimensions and return a new grid
