@@ -5,7 +5,6 @@ import (
 	"advent-of-code/lib/iter"
 	"advent-of-code/lib/util"
 	"fmt"
-	"os"
 )
 
 // TODO: FillRect
@@ -26,11 +25,12 @@ func (grid *Grid[T]) FillSlice(fillValue T, s Slice) {
 			fmt.Printf("  slice = %v\n", s)
 			fmt.Printf("  current cell = %v\n", cells.Value())
 			fmt.Printf("  offset = %v\n", offset)
-			os.Exit(1)
+			panic(1)
 		}
 	}()
 	for cells.Next() {
-		offset = grid.OffsetFromCell(cells.Value())
+		v := cells.Value()
+		offset = grid.OffsetFromCell(v)
 		grid.storage[offset] = fillValue
 	}
 }

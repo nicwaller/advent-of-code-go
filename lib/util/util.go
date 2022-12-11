@@ -273,3 +273,12 @@ func VecClamp(cell []int, clamp int) {
 		cell[d] = IntMin(clamp, IntMax(-clamp, cell[d]))
 	}
 }
+
+func Rotate[T any](offset int, original []T) []T {
+	l := len(original)
+	c := make([]T, l)
+	for i, v := range original {
+		c[(i+offset)%l] = v
+	}
+	return c
+}
