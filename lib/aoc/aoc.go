@@ -13,6 +13,7 @@ import (
 	"os/user"
 	"path"
 	"strings"
+	"time"
 )
 
 var inputFilename = "input.txt"
@@ -102,10 +103,10 @@ func Run(run RunFunc) {
 	var p1Actual string
 	var p2Actual string
 	inputFilename = "input.txt"
-	//start := time.Now()
+	start := time.Now()
 	run(&p1Actual, &p2Actual)
-	//elapsed := time.Since(start).Round(time.Millisecond)
-	//summary.WriteString(fmt.Sprintf("Completed in %v\n", elapsed))
+	elapsed := time.Since(start).Round(time.Millisecond)
+	summary.WriteString(fmt.Sprintf("Completed in %v\n", elapsed))
 	summary.WriteString(fmt.Sprintf("Part 1: %v\n", p1Actual))
 	summary.WriteString(fmt.Sprintf("Part 2: %v\n", p2Actual))
 	Out()

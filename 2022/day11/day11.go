@@ -15,7 +15,6 @@ func main() {
 	aoc.Test(run, "sample.txt", "10605", "2713310158")
 	//aoc.Test(run, "input.txt", "55458", "14508081294")
 	aoc.Run(run)
-	aoc.Out()
 }
 
 type Monkey struct {
@@ -37,32 +36,21 @@ func parse() []*Monkey {
 			},
 		}
 		operator := strings.Fields(lines[2])[4]
-		nf := util.NumberFields(lines[2])
-		var operand int
-		switch len(nf) {
-		case 0:
-			operand = -1
-		case 1:
-			operand = nf[0]
-		default:
-			panic(nf)
-		}
-		switch operator {
-		case "+":
+		operand := strings.Fields(lines[2])[5]
+		switch {
+		case operator == "*" && operand == "old":
 			m.operation = func(v int) int {
-				if operand == -1 {
-					return v + v
-				} else {
-					return v + operand
-				}
+				return v * v
 			}
-		case "*":
+		case operator == "+":
+			operandN := util.UnsafeAtoi(operand)
 			m.operation = func(v int) int {
-				if operand == -1 {
-					return v * v
-				} else {
-					return v * operand
-				}
+				return v + operandN
+			}
+		case operator == "*":
+			operandN := util.UnsafeAtoi(operand)
+			m.operation = func(v int) int {
+				return v * operandN
 			}
 		default:
 			panic(operator)
@@ -75,7 +63,7 @@ func parse() []*Monkey {
 func simSimian(rounds int, op func(int) int) int {
 	monkeys := parse()
 	monkeyInspections := make([]int, len(monkeys))
-	doRound := func(op func(int) int) {
+	for round := 1; round <= rounds; round++ {
 		for monkeyN, m := range monkeys {
 			for m.inventory.Length() > 0 {
 				monkeyInspections[monkeyN]++
@@ -84,14 +72,10 @@ func simSimian(rounds int, op func(int) int) int {
 			}
 		}
 	}
-	for round := 1; round <= rounds; round++ {
-		doRound(op)
-	}
 	sort.Sort(sort.Reverse(sort.IntSlice(monkeyInspections)))
 	return util.IntProductV(monkeyInspections[0:2]...)
 }
 
-//goland:noinspection GoBoolExpressions
 func run(p1 *string, p2 *string) {
 	*p1 = strconv.Itoa(simSimian(20, func(v int) int { return v / 3 }))
 	magicMod := f8l.Reduce(f8l.Map(parse(), func(m *Monkey) int { return m.testMod }), 1, util.IntProduct)

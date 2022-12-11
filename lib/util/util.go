@@ -12,11 +12,7 @@ import (
 )
 
 func UnsafeAtoi(s string) int {
-	res, err := strconv.Atoi(s)
-	if err != nil {
-		panic(err)
-	}
-	return res
+	return Must(strconv.Atoi(s))
 }
 
 func Take[T any](count int, from []T) ([]T, []T) {
