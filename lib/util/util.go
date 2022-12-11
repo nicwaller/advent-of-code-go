@@ -235,10 +235,10 @@ func Neq(n int) func(int) bool {
 // It's critical that defaultValue is returned from a function
 // to ensure that each value in the slice is unique, not reused
 // I'm not sure how to copy an opaque defaultValue! -NW
-func Make[T any](n int, defaultValue func() T) []T {
+func Make[T any](n int, defaultValue func(int) T) []T {
 	slice := make([]T, n)
 	for i := 0; i < len(slice); i++ {
-		slice[i] = defaultValue()
+		slice[i] = defaultValue(i)
 	}
 	return slice
 }
