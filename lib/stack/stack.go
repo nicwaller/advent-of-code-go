@@ -18,6 +18,14 @@ func NewStack[T any]() Stack[T] {
 	return s
 }
 
+func FromSlice[T any](slice []T) Stack[T] {
+	s := NewStack[T]()
+	for _, v := range slice {
+		s.Push(v)
+	}
+	return s
+}
+
 func (stack *Stack[T]) Init() {
 	stack.items = make([]T, 0)
 	stack.ptr = -1
