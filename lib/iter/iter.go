@@ -155,7 +155,7 @@ func SlidingWindow[T any](windowSize int, iter Iterator[T]) Iterator[[]T] {
 		if !iter.Next() {
 			return EmptyIterator[[]T]()
 		}
-		_ = buf.Push(iter.Value())
+		buf.Push(iter.Value())
 	}
 	// return windowed results
 	// TODO: clever circular queue bullshit
@@ -164,7 +164,7 @@ func SlidingWindow[T any](windowSize int, iter Iterator[T]) Iterator[[]T] {
 			if !iter.Next() {
 				return false
 			}
-			_ = buf.Push(iter.Value())
+			buf.Push(iter.Value())
 			_, _ = buf.Pop()
 			return true
 		},

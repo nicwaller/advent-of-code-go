@@ -5,7 +5,6 @@ import (
 	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/queue"
 	"advent-of-code/lib/util"
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -14,7 +13,7 @@ import (
 func main() {
 	aoc.Select(2022, 11)
 	aoc.Test(run, "sample.txt", "10605", "2713310158")
-	aoc.Test(run, "input.txt", "55458", "14508081294")
+	//aoc.Test(run, "input.txt", "55458", "14508081294")
 	aoc.Run(run)
 	aoc.Out()
 }
@@ -73,95 +72,28 @@ func parse() []*Monkey {
 	return monkeys
 }
 
+func simSimian(rounds int, op func(int) int) int {
+	monkeys := parse()
+	monkeyInspections := make([]int, len(monkeys))
+	doRound := func(op func(int) int) {
+		for monkeyN, m := range monkeys {
+			for m.inventory.Length() > 0 {
+				monkeyInspections[monkeyN]++
+				itemScore := op(m.operation(m.inventory.MustPop()))
+				monkeys[m.targetSel[itemScore%m.testMod == 0]].inventory.Push(itemScore)
+			}
+		}
+	}
+	for round := 1; round <= rounds; round++ {
+		doRound(op)
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(monkeyInspections)))
+	return util.IntProductV(monkeyInspections[0:2]...)
+}
+
 //goland:noinspection GoBoolExpressions
 func run(p1 *string, p2 *string) {
-	monkeyInspections := make([]int, 8)
-	monkeys := parse()
-	for round := 1; round <= 20; round++ {
-		for monkeyN, m := range monkeys {
-			//fmt.Printf("Monkey %d:\n", monkeyN)
-			if m.inventory.Length() == 0 {
-				continue
-			}
-			var itemScore int
-			for m.inventory.Length() > 0 {
-				monkeyInspections[monkeyN]++
-				itemScore, _ = m.inventory.Pop()
-				itemScore = m.operation(itemScore)
-				itemScore /= 3
-				sel := itemScore%m.testMod == 0
-				target := m.targetSel[sel]
-				err := monkeys[target].inventory.Push(itemScore)
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-		//fmt.Printf("After Round %d:\n", round)
-		//for monkeyNum, m := range monkeys {
-		//	fmt.Printf(" Monkey %d: %v\n", monkeyNum, m.inventory.Items())
-		//}
-	}
-	sort.Ints(monkeyInspections)
-	fmt.Println(monkeyInspections)
-	ll := len(monkeyInspections)
-	*p1 = strconv.Itoa(monkeyInspections[ll-1] * monkeyInspections[ll-2])
-
-	testMods := f8l.Map[*Monkey, int](monkeys, func(m *Monkey) int { return m.testMod })
-	magicMod := f8l.Reduce(testMods, 1, util.IntProduct)
-
-	debug := false
-
-	monkeyInspections = make([]int, 8)
-	monkeys = parse()
-	for round := 1; round <= 10000; round++ {
-		if debug {
-			fmt.Printf("Round %d\n", round)
-		}
-		for monkeyN, m := range monkeys {
-			if debug {
-				fmt.Printf("Monkey %d:\n", monkeyN)
-			}
-			if m.inventory.Length() == 0 {
-				continue
-			}
-			var itemScore int
-			for m.inventory.Length() > 0 {
-				monkeyInspections[monkeyN]++
-				itemScore, _ = m.inventory.Pop()
-				if debug {
-					fmt.Printf(" Monkey inspects an item with a worry level of %d:\n", itemScore)
-				}
-
-				itemScore = m.operation(itemScore)
-				if debug {
-					fmt.Printf("  Worry level becomes %d:\n", itemScore)
-				}
-
-				itemScore %= magicMod
-				if debug {
-					fmt.Printf("  Monkey gets bored with item. Worry level is reduced to %d\n", itemScore)
-				}
-
-				sel := itemScore%m.testMod == 0
-				//fmt.Printf("  Current worry level divisible by 23? %v\n", sel)
-				target := m.targetSel[sel]
-				//fmt.Printf("  Item with worry level %d is thrown to monkey %d\n", itemScore, target)
-				err := monkeys[target].inventory.Push(itemScore)
-				if err != nil {
-					panic(err)
-				}
-			}
-		}
-		if round%1000 == 0 || round == 1 || round == 20 {
-			fmt.Printf("After Round %d:\n", round)
-			for id, v := range monkeyInspections[0:4] {
-				fmt.Printf(" Monkey %d inspected items: %v\n", id, v)
-			}
-		}
-	}
-	sort.Ints(monkeyInspections)
-	fmt.Println(monkeyInspections)
-	ll = len(monkeyInspections)
-	*p2 = strconv.Itoa(monkeyInspections[ll-1] * monkeyInspections[ll-2])
+	*p1 = strconv.Itoa(simSimian(20, func(v int) int { return v / 3 }))
+	magicMod := f8l.Reduce(f8l.Map(parse(), func(m *Monkey) int { return m.testMod }), 1, util.IntProduct)
+	*p2 = strconv.Itoa(simSimian(10000, func(v int) int { return v % magicMod }))
 }

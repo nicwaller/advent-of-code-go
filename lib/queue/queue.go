@@ -30,18 +30,25 @@ func (q *Queue[T]) Grow(margin int) {
 func FromSlice[T any](slice []T) Queue[T] {
 	q := New[T](len(slice))
 	for _, v := range slice {
-		_ = q.Push(v)
+		q.Push(v)
 	}
 	return q
 }
 
-func (q *Queue[T]) Push(v T) error {
+func (q *Queue[T]) Push(v T) {
 	if q.count >= len(q.items) {
 		q.Grow(q.count)
 	}
 	q.items[(q.head+q.count)%len(q.items)] = v
 	q.count++
-	return nil
+}
+
+func (q *Queue[T]) MustPop() T {
+	r, err := q.Pop()
+	if err != nil {
+		panic(err)
+	}
+	return r
 }
 
 func (q *Queue[T]) Pop() (T, error) {
