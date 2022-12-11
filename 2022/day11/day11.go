@@ -6,7 +6,6 @@ import (
 	"advent-of-code/lib/queue"
 	"advent-of-code/lib/util"
 	"fmt"
-	"math/big"
 	"sort"
 	"strconv"
 	"strings"
@@ -21,8 +20,8 @@ func main() {
 }
 
 type Monkey struct {
-	inventory queue.Queue[*big.Int]
-	operation func(v *big.Int)
+	inventory queue.Queue[int]
+	operation func(v int) int
 	testMod   int
 	targetSel map[bool]int
 }
@@ -30,11 +29,8 @@ type Monkey struct {
 func parse() []*Monkey {
 	monkeys := make([]*Monkey, 0)
 	for _, lines := range aoc.ParagraphsIterator().List() {
-		bigNf := f8l.Map[int, *big.Int](util.NumberFields(lines[1]), func(v int) *big.Int {
-			return big.NewInt(int64(v))
-		})
 		m := Monkey{
-			inventory: queue.FromSlice[*big.Int](bigNf),
+			inventory: queue.FromSlice[int](util.NumberFields(lines[1])),
 			testMod:   util.NumberFields(lines[3])[0],
 			targetSel: map[bool]int{
 				true:  util.NumberFields(lines[4])[0],
@@ -54,19 +50,19 @@ func parse() []*Monkey {
 		}
 		switch operator {
 		case "+":
-			m.operation = func(v *big.Int) {
+			m.operation = func(v int) int {
 				if operand == -1 {
-					v.Add(v, v)
+					return v + v
 				} else {
-					v.Add(v, big.NewInt(int64(operand)))
+					return v + operand
 				}
 			}
 		case "*":
-			m.operation = func(v *big.Int) {
+			m.operation = func(v int) int {
 				if operand == -1 {
-					v.Mul(v, v)
+					return v * v
 				} else {
-					v.Mul(v, big.NewInt(int64(operand)))
+					return v * operand
 				}
 			}
 		default:
@@ -87,19 +83,16 @@ func run(p1 *string, p2 *string) {
 			if m.inventory.Length() == 0 {
 				continue
 			}
-			var itemScore *big.Int
+			var itemScore int
 			for m.inventory.Length() > 0 {
 				monkeyInspections[monkeyN]++
 				itemScore, _ = m.inventory.Pop()
 				//fmt.Printf(" Monkey inspects an item with a worry level of %d:\n", itemScore)
-				m.operation(itemScore)
+				itemScore = m.operation(itemScore)
 				//fmt.Printf("  Worry level becomes %d:\n", itemScore)
-				itemScore.Div(itemScore, big.NewInt(3))
+				itemScore /= 3
 				//fmt.Printf("  Monkey gets bored with item. Worry level is divided by 3 to %d\n", itemScore)
-				modResult := big.NewInt(0)
-				modResult.Set(itemScore)
-				modResult.Mod(modResult, big.NewInt(int64(m.testMod)))
-				sel := modResult.Int64() == 0
+				sel := itemScore%m.testMod == 0
 				//fmt.Printf("  Current worry level divisible by 23? %v\n", sel)
 				target := m.targetSel[sel]
 				//fmt.Printf("  Item with worry level %d is thrown to monkey %d\n", itemScore, target)
@@ -137,7 +130,7 @@ func run(p1 *string, p2 *string) {
 			if m.inventory.Length() == 0 {
 				continue
 			}
-			var itemScore *big.Int
+			var itemScore int
 			for m.inventory.Length() > 0 {
 				monkeyInspections[monkeyN]++
 				itemScore, _ = m.inventory.Pop()
@@ -145,17 +138,17 @@ func run(p1 *string, p2 *string) {
 					fmt.Printf(" Monkey inspects an item with a worry level of %d:\n", itemScore)
 				}
 
-				m.operation(itemScore)
+				itemScore = m.operation(itemScore)
 				if debug {
 					fmt.Printf("  Worry level becomes %d:\n", itemScore)
 				}
 
-				itemScore.Mod(itemScore, big.NewInt(int64(magicMod)))
+				itemScore %= magicMod
 				if debug {
 					fmt.Printf("  Monkey gets bored with item. Worry level is reduced to %d\n", itemScore)
 				}
 
-				sel := itemScore.Int64()%int64(m.testMod) == 0
+				sel := itemScore%m.testMod == 0
 				//fmt.Printf("  Current worry level divisible by 23? %v\n", sel)
 				target := m.targetSel[sel]
 				//fmt.Printf("  Item with worry level %d is thrown to monkey %d\n", itemScore, target)
