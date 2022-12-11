@@ -243,6 +243,10 @@ func Make[T any](n int, defaultValue func() T) []T {
 	return slice
 }
 
+func VecInvert(cell []int) []int {
+	return f8l.Map(cell, func(i int) int { return -i })
+}
+
 func VecAdd(cell []int, addend []int) {
 	if len(cell) != len(addend) {
 		panic("dimensions must be equal")
