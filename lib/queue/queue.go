@@ -82,3 +82,8 @@ func (q *Queue[T]) Items() []T {
 	}
 	return ret
 }
+
+func (q *Queue[T]) Reset() {
+	q.head = 0
+	q.count = 0
+}
