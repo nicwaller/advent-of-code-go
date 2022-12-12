@@ -134,7 +134,7 @@ func EmptyIterator[T any]() Iterator[T] {
 			return false
 		},
 		Value: func() T {
-			var result T // get the zero value (can't use nil)
+			var result T // get the zero Value (can't use nil)
 			return result
 		},
 	}
@@ -176,8 +176,12 @@ func SlidingWindow[T any](windowSize int, iter Iterator[T]) Iterator[[]T] {
 }
 
 type IndexedValue[T any] struct {
-	index int
-	value T
+	Index int
+	Value T
+}
+
+func (iv IndexedValue[T]) Pair() (int, T) {
+	return iv.Index, iv.Value
 }
 
 func Repeat[T any](iter Iterator[T]) Iterator[T] {
@@ -228,8 +232,8 @@ func Enumerate[T any](iter Iterator[T]) Iterator[IndexedValue[T]] {
 		},
 		Value: func() IndexedValue[T] {
 			return IndexedValue[T]{
-				index: index,
-				value: value,
+				Index: index,
+				Value: value,
 			}
 		},
 	}
