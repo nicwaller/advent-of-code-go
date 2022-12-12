@@ -124,6 +124,7 @@ func (grid *Grid[T]) NeighbourRays(c Cell) []iter.Iterator[Cell] {
 	return rays
 }
 
+// NeighboursAdjacent is also known as the "Cardinal Neighbours"
 func (grid *Grid[T]) NeighboursAdjacent(c Cell, includeCentre bool) []Cell {
 	possibilities := make([]Cell, 0)
 	// this is hard to write n-dimensionally!
