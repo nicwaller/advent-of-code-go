@@ -232,6 +232,18 @@ func Neq(n int) func(int) bool {
 	}
 }
 
+func Eq_[T comparable](v T) func(T) bool {
+	return func(w T) bool {
+		return v == w
+	}
+}
+
+func Neq_[T comparable](v T) func(T) bool {
+	return func(w T) bool {
+		return v != w
+	}
+}
+
 // It's critical that defaultValue is returned from a function
 // to ensure that each value in the slice is unique, not reused
 // I'm not sure how to copy an opaque defaultValue! -NW
