@@ -208,6 +208,12 @@ func Clear[T any](slice []T) {
 	}
 }
 
+func Fill[T any](slice []T, v T) {
+	for i, _ := range slice {
+		slice[i] = v
+	}
+}
+
 func Copy[T any](original []T) []T {
 	c := make([]T, len(original))
 	copy(c, original)
