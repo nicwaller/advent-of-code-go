@@ -87,28 +87,18 @@ func run(p1 *string, p2 *string) {
 		// abyss!
 		return origin
 	}
-	for grains := 0; ; grains++ {
-		rp := restingPlace(origin)
-		g.Set(rp, "o")
-		//g.Print()
-		if rp[0] == origin[0] && rp[1] == origin[1] {
-			// abyss!
-			*p1 = strconv.Itoa(grains)
-			break
+
+	fillGrains := func() int {
+		for grains := 0; ; grains++ {
+			rp := restingPlace(origin)
+			g.Set(rp, "o")
+			if rp[0] == origin[0] && rp[1] == origin[1] {
+				return grains
+			}
 		}
 	}
 
+	*p1 = strconv.Itoa(fillGrains())
 	g = parse(true)
-	for grains := 0; ; {
-		grains++
-		rp := restingPlace(origin)
-		g.Set(rp, "o")
-		//g.Print()
-		if rp[0] == origin[0] && rp[1] == origin[1] {
-			// abyss!
-			*p2 = strconv.Itoa(grains)
-			break
-		}
-	}
-	//g.Print()
+	*p2 = strconv.Itoa(fillGrains() + 1)
 }
