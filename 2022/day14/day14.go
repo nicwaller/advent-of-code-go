@@ -5,6 +5,7 @@ import (
 	"advent-of-code/lib/aoc"
 	"advent-of-code/lib/grid"
 	"advent-of-code/lib/iter"
+	"advent-of-code/lib/stack"
 	"advent-of-code/lib/util"
 	"strconv"
 )
@@ -13,7 +14,7 @@ func main() {
 	aoc.Select(2022, 14)
 	aoc.Test(run, "sample.txt", "24", "93")
 	aoc.Test(run, "input.txt", "808", "26625")
-	//aoc.Run(run)
+	aoc.Run(run)
 	aoc.Out()
 }
 
@@ -66,7 +67,11 @@ func parse(includeFloor bool) grid.Grid[string] {
 func run(p1 *string, p2 *string) {
 	g := parse(false)
 	origin := grid.Cell{0, 500}
+	tk := stack.NewStack[grid.Cell]()
 	restingPlace := func(start grid.Cell) grid.Cell {
+		if tk.Height() > 0 {
+			start = tk.Peek()
+		}
 		p := util.Copy(start)
 		for p[0] < g.Height()-1 {
 			if g.Get(grid.Cell{p[0] + 1, p[1]}) == "." {
@@ -81,8 +86,10 @@ func run(p1 *string, p2 *string) {
 				p[0]++
 				p[1]++
 			} else {
+				_, _ = tk.Pop()
 				return p
 			}
+			tk.Push(util.Copy(p))
 		}
 		// abyss!
 		return origin
