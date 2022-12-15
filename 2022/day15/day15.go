@@ -19,7 +19,7 @@ func main() {
 	aoc.Test(run, "sample.txt", "26", "56000011")
 	checkRow = 2000000
 	searchSpace = 4000000
-	aoc.Test(run, "input.txt", "5166077", "")
+	aoc.Test(run, "input.txt", "5166077", "13071206703981")
 	//aoc.Run(run)
 	aoc.Out()
 }
@@ -152,7 +152,11 @@ func run(p1 *string, p2 *string) {
 	*p1 = strconv.Itoa(c)
 
 	//for y := 0; y <= searchSpace; y++ {
-	for y := 2703981; y <= 2703981; y++ {
+	//if searchSpace == 4000000 {
+	//	y = 2703981 - 1
+	//	searchSpace = 2703981 + 1
+	//}
+	for y := 0; y <= searchSpace; y++ {
 		rr := row(y, readings)
 		v := rr.Count(false)
 		_ = rr
@@ -164,8 +168,10 @@ func run(p1 *string, p2 *string) {
 					fmt.Println(rr.segments[i-1])
 					fmt.Println(rr.segments[i])
 					fmt.Println(rr.segments[i+1])
-					tuningFrequency := 4000000*rr.segments[i].Origin + y
+					tuningFrequency := 4000000*(rr.segments[i].Origin+1) + y
+					fmt.Println(tuningFrequency)
 					*p2 = strconv.Itoa(tuningFrequency)
+					return
 				}
 			}
 		}
