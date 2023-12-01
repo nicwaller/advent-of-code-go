@@ -103,6 +103,12 @@ func NumberFields(s string) []int {
 	//return intFields
 }
 
+func Digits(s string) []int {
+	var intMatcher = regexp.MustCompile("[0-9]")
+	matches := intMatcher.FindAllString(s, math.MaxInt32)
+	return f8l.Map[string, int](matches, UnsafeAtoi)
+}
+
 func InRange[T constraints.Ordered](value T, min T, max T) bool {
 	return value >= min && value <= max
 }
