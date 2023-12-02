@@ -39,7 +39,7 @@ func Select(year int, day int) {
 			os.Exit(1)
 		}
 	}
-	MaybeDownload()
+	//MaybeDownload()
 }
 
 func MaybeDownload() {
@@ -69,14 +69,9 @@ func MaybeDownload() {
 		}
 		util.Must(io.Copy(dstFile, httpResp.Body))
 	}
-	if !hasContent("part1.md") {
+	if !hasContent("input.txt") {
 		url := fmt.Sprintf("https://adventofcode.com/%d/day/%d", yearNumber, dayNumber)
 		fmt.Println(url)
-		//	download(url, "part1.html")
-		//	// TODO: parse the HTML and make the markdown nice
-		//	fmt.Println("Downloaded part1.html")
-	}
-	if !hasContent("input.txt") {
 		download(fmt.Sprintf("https://adventofcode.com/%d/day/%d/input", yearNumber, dayNumber), "input.txt")
 		fmt.Println("Downloaded input.txt")
 	}
