@@ -14,10 +14,15 @@ import (
 
 func main() {
 	aoc.Select(2023, 3)
-	aoc.Test(run, "sample.txt", "4361", "")
-	aoc.Test(run, "input.txt", "533784", "")
+	aoc.Test(run, "sample.txt", "4361", "467835")
+	aoc.Test(run, "input.txt", "533784", "78826761")
 	aoc.Run(run)
 	aoc.Out()
+}
+
+type Coord2D struct {
+	y int
+	x int
 }
 
 func run(p1 *string, p2 *string) {
@@ -32,6 +37,7 @@ func run(p1 *string, p2 *string) {
 	//	grid.Cell{g.RowCount() - 1, g.ColumnCount() - 1},
 	//)
 	partNumbers := set.New[int]()
+	maybeGears := make(map[Coord2D][]int)
 	for y := 0; y < g.RowCount(); y++ {
 		for x := 0; x < g.ColumnCount(); x++ {
 			c := grid.Cell{y, x}
@@ -75,7 +81,17 @@ func run(p1 *string, p2 *string) {
 					ncv := g.Get(nc)
 					if isSymbol(ncv) {
 						isPartNumber = true
-						break
+						//break
+						if ncv == "*" {
+							// it's a gear!
+							maybeGears[Coord2D{
+								y: nc[0],
+								x: nc[1],
+							}] = append(maybeGears[Coord2D{
+								y: nc[0],
+								x: nc[1],
+							}], num)
+						}
 					}
 				}
 
@@ -140,8 +156,16 @@ func run(p1 *string, p2 *string) {
 	sumAlt := f8l.Sum(partNumbers.Items())
 	_ = sumAlt
 
+	gearSum := 0
+	for _, findings := range maybeGears {
+		if len(findings) == 2 {
+			ratio := findings[0] * findings[1]
+			gearSum += ratio
+		}
+	}
+
 	*p1 = strconv.Itoa(sum)
-	*p2 = strconv.Itoa(0)
+	*p2 = strconv.Itoa(gearSum)
 }
 
 func isSymbol(s string) bool {
