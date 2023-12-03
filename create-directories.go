@@ -12,7 +12,7 @@ import (
 
 func main() {
 	baseDir, _ := os.Getwd()
-	for year := 2015; year <= 2022; year++ {
+	for year := 2015; year <= 2023; year++ {
 		yearDir := filepath.Join(baseDir, strconv.Itoa(year))
 		_ = os.Mkdir(yearDir, 0750)
 		for day := 1; day <= 31; day++ {
@@ -24,8 +24,6 @@ func main() {
 			}
 			safelyCreate("input.txt")
 			safelyCreate("sample.txt")
-			safelyCreate("part1.md")
-			safelyCreate("part2.md")
 			safelyCreateContent(dayDirName+".go", skel(year, day))
 		}
 	}
