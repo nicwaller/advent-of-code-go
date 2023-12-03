@@ -1,9 +1,9 @@
 package aoc
 
 import (
-	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/grid"
 	"advent-of-code/lib/iter"
+	"advent-of-code/lib/iterc"
 	"advent-of-code/lib/util"
 	"fmt"
 	"io"
@@ -98,7 +98,13 @@ func Run(run RunFunc) {
 	var p1Actual string
 	var p2Actual string
 	inputFilename = "input.txt"
+	if !allTestsPassed {
+		summary.WriteString(fmt.Sprintf("⏸️Won't run %s until tests are passing", inputFilename))
+		Out()
+		return
+	}
 	start := time.Now()
+	fmt.Printf("🏃Running: %s\n", inputFilename)
 	run(&p1Actual, &p2Actual)
 	elapsed := time.Since(start).Round(time.Millisecond)
 	summary.WriteString(fmt.Sprintf("Completed in %v\n", elapsed))
@@ -132,6 +138,7 @@ func Test(run RunFunc, filename string, p1 string, p2 string) {
 		allTestsPassed = false
 		return
 	}
+	fmt.Printf("🔍Testing: %s\n", filename)
 	var p1Actual string
 	var p2Actual string
 	run(&p1Actual, &p2Actual)
@@ -195,18 +202,26 @@ func InputString() string {
 
 //goland:noinspection GoUnusedExportedFunction
 func InputLines() []string {
-	return util.ReadLines(inputFilename).List()
+	return iterc.MustReadLines(inputFilename).List()
 }
 
 //goland:noinspection GoUnusedExportedFunction
 func InputLinesInt() []int {
-	lines := util.ReadLines(inputFilename).List()
-	return f8l.Map[string, int](lines, util.UnsafeAtoi)
+	return iterc.Map(iterc.MustReadLines(inputFilename), util.UnsafeAtoi).List()
 }
 
 //goland:noinspection GoUnusedExportedFunction
 func InputLinesIterator() iter.Iterator[string] {
 	return util.ReadLines(inputFilename)
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func InputLinesIterc() iterc.Iterator[string] {
+	return iterc.MustReadLines(inputFilename)
+}
+
+func InputParagraphs() [][]string {
+	return iterc.MustReadParagraphs(inputFilename).List()
 }
 
 //goland:noinspection GoUnusedExportedFunction
