@@ -48,16 +48,16 @@ func Analyze[T constraints.Ordered](list []T) AnalyzeResult[T] {
 		var empty AnalyzeResult[T]
 		return empty
 	}
-	min := list[0]
-	max := list[0]
+	smallest := list[0]
+	largest := list[0]
 
 	distinct := make(map[T]int)
 	for _, item := range list {
-		if item > max {
-			max = item
+		if item > largest {
+			largest = item
 		}
-		if item < min {
-			min = item
+		if item < smallest {
+			smallest = item
 		}
 
 		if _, ok := distinct[item]; !ok {
@@ -86,8 +86,8 @@ func Analyze[T constraints.Ordered](list []T) AnalyzeResult[T] {
 		Count:            len(list),
 		Distinct:         len(distinct),
 		Frequency:        distinct,
-		Min:              min,
-		Max:              max,
+		Min:              smallest,
+		Max:              largest,
 		MostCommon:       topKey,
 		CountMostCommon:  topScore,
 		LeastCommon:      bottomKey,
@@ -96,17 +96,17 @@ func Analyze[T constraints.Ordered](list []T) AnalyzeResult[T] {
 }
 
 func MinMax[T constraints.Ordered](list []T) (T, T) {
-	min := list[0]
-	max := list[0]
+	smallest := list[0]
+	largest := list[0]
 
 	for _, item := range list {
-		if item > max {
-			max = item
+		if item > largest {
+			largest = item
 		}
-		if item < min {
-			min = item
+		if item < smallest {
+			smallest = item
 		}
 	}
 
-	return min, max
+	return smallest, largest
 }
