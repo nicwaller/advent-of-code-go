@@ -2,7 +2,6 @@ package iterc
 
 import (
 	"advent-of-code/lib/queue"
-	"context"
 	"fmt"
 )
 
@@ -124,35 +123,24 @@ func (iter Iterator[T]) List() []T {
 	return List(iter)
 }
 
-// PERF: warning, this will always leak a goroutine!
-func Repeat[T any](iter Iterator[T]) Iterator[T] {
-	return RepeatCtx(iter, context.TODO())
-}
-
-func RepeatCtx[T any](iter Iterator[T], ctx context.Context) Iterator[T] {
+func Repeat[T any](iter Iterator[T], times int) Iterator[T] {
 	elements := make(chan T)
 	go func() {
 		all := iter.List()
-		for {
+		for round := 0; round < times; round++ {
 			for _, e := range all {
 				elements <- e
-				select {
-				case <-ctx.Done():
-					close(elements)
-					break
-				default:
-					continue
-				}
 			}
 		}
+		close(elements)
 	}()
 	return Iterator[T]{
 		C: elements,
 	}
 }
 
-func (iter Iterator[T]) Repeat() Iterator[T] {
-	return Repeat(iter)
+func (iter Iterator[T]) Repeat(times int) Iterator[T] {
+	return Repeat(iter, times)
 }
 
 // TODO: oscillate()

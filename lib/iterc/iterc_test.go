@@ -103,12 +103,16 @@ func TestSlidingWindow(t *testing.T) {
 	}
 }
 
-func TestRepeatCtx(t *testing.T) {
-	r1 := ListIterator([]int{1, 2})
-	rInf := r1.Repeat()
-	sum := Sum(rInf.Take(5))
+func TestRepeat(t *testing.T) {
+	r1 := ListIterator([]int{1, 2}).Repeat(3)
+	sum := Sum(r1.Take(5))
 	if 7 != sum {
 		t.Error(sum)
+	}
+
+	l2 := ListIterator([]int{1, 2}).Repeat(2).List()
+	if len(l2) != 4 {
+		t.Error(l2)
 	}
 }
 
