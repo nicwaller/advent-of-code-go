@@ -180,3 +180,17 @@ func TestSum(t *testing.T) {
 		t.Error()
 	}
 }
+
+func TestProduct(t *testing.T) {
+	p := Product(
+		[]int{0, 1},
+		[]int{0, 1},
+		[]int{0, 1},
+	).List()
+	if len(p) != 8 {
+		t.Error(p)
+	}
+	if len(p[0]) != 3 {
+		t.Error(p[0])
+	}
+}

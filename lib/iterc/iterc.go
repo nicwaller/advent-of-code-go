@@ -338,3 +338,43 @@ func Sum(iter Iterator[int]) int {
 		return i + j
 	}, 0)
 }
+
+func Product[T any](slices ...[]T) Iterator[[]T] {
+	elements := make(chan []T)
+	indices := make([]int, len(slices))
+
+	go func() {
+		current := func() []T {
+			res := make([]T, 0, len(indices))
+			for d := 0; d < len(indices); d++ {
+				res = append(res, slices[d][indices[d]])
+			}
+			return res
+		}
+
+		next := func() bool {
+			indices[0]++
+			for d := 0; d < len(slices); d++ {
+				if indices[d] == len(slices[d]) {
+					indices[d] = 0
+					if d == len(slices)-1 {
+						return false
+					}
+					indices[d+1]++
+				}
+			}
+			return true
+
+		}
+
+		elements <- current()
+		for next() {
+			elements <- current()
+		}
+		close(elements)
+	}()
+
+	return Iterator[[]T]{
+		C: elements,
+	}
+}
