@@ -199,7 +199,7 @@ func (slice Slice) Contains(c Cell) bool {
 		panic("mismatched dimensions")
 	}
 	for d, _ := range slice {
-		if c[d] < slice[d].Origin || c[d] > slice[d].Terminus {
+		if c[d] < slice[d].Origin || c[d] >= slice[d].Terminus {
 			return false
 		}
 	}
