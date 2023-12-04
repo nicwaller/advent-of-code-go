@@ -169,11 +169,16 @@ type IndexedValue[T any] struct {
 }
 
 func Enumerate[T any](iter Iterator[T]) Iterator[IndexedValue[T]] {
+	return EnumerateFrom(iter, 0)
+}
+
+func EnumerateFrom[T any](iter Iterator[T], start int) Iterator[IndexedValue[T]] {
 	elements := make(chan IndexedValue[T])
 	go func() {
-		i := 0
+		i := start
 		for e := range iter.C {
 			elements <- IndexedValue[T]{Index: i, Value: e}
+			i++
 		}
 		close(elements)
 	}()
