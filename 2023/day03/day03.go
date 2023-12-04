@@ -2,12 +2,10 @@ package main
 
 import (
 	"advent-of-code/lib/aoc"
-	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/grid"
 	"advent-of-code/lib/iter"
-	"advent-of-code/lib/set"
+	"advent-of-code/lib/iterc"
 	"advent-of-code/lib/util"
-	"fmt"
 	"strconv"
 	"strings"
 )
@@ -16,7 +14,7 @@ func main() {
 	aoc.Select(2023, 3)
 	aoc.Test(run, "sample.txt", "4361", "467835")
 	aoc.Test(run, "input.txt", "533784", "78826761")
-	aoc.Run(run)
+	//aoc.Run(run)
 	aoc.Out()
 }
 
@@ -27,16 +25,8 @@ type Coord2D struct {
 
 func run(p1 *string, p2 *string) {
 	g := aoc.InputGridRunes()
-	//g.Grow(1, ".") // TODO: grow is very confusing because indexing starts at -1
-	g.Print()
-	bounds := g.All() // TODO: maybe alias as grid.Bounds()
-	// g.Contains(cell)?
+	bounds := g.All()
 	sum := 0
-	//gs := grid.SliceEnclosing(
-	//	grid.Cell{0, 0},
-	//	grid.Cell{g.RowCount() - 1, g.ColumnCount() - 1},
-	//)
-	partNumbers := set.New[int]()
 	maybeGears := make(map[Coord2D][]int)
 	for y := 0; y < g.RowCount(); y++ {
 		for x := 0; x < g.ColumnCount(); x++ {
@@ -68,7 +58,6 @@ func run(p1 *string, p2 *string) {
 				digits := digitIter.List()
 				numStr := strings.Join(digits, "")
 				num := util.UnsafeAtoi(numStr)
-				fmt.Println(num)
 
 				// but is it a part number?
 				isPartNumber := false
@@ -81,7 +70,6 @@ func run(p1 *string, p2 *string) {
 					ncv := g.Get(nc)
 					if isSymbol(ncv) {
 						isPartNumber = true
-						//break
 						if ncv == "*" {
 							// it's a gear!
 							maybeGears[Coord2D{
@@ -99,70 +87,16 @@ func run(p1 *string, p2 *string) {
 					sum += num
 				}
 			}
-			// identify spans of numbers
-			//if spanStart == nil {
-			//	if isDigit(cv) {
-			//		gotIt := x
-			//		spanStart = &gotIt
-			//		spanEnd = nil
-			//	}
-			//} else {
-			//	if isDigit(cv) {
-			//		// extending the number
-			//		gotIt := x
-			//		spanEnd = &gotIt
-			//	} else {
-			//		// number is terminated
-			//		scanNow = true
-			//	}
-			//}
-			//if spanStart != nil && spanEnd == nil && x+1 == g.ColumnCount() {
-			//	scanNow = true
-			//	gg := g.ColumnCount() - 1
-			//	spanEnd = &gg
-			//}
-			//if scanNow {
-			//	digits := make([]string, 0)
-			//	for i := *spanStart; i <= *spanEnd; i++ {
-			//		cc := grid.Cell{y, i}
-			//		digits = append(digits, g.Get(cc))
-			//	}
-			//	digStr := strings.Join(digits, "")
-			//	digVal := util.UnsafeAtoi(digStr)
-			//	fmt.Println(digVal)
-			//	s := grid.SliceEnclosing(
-			//		grid.Cell{y - 1, *spanStart - 1},
-			//		grid.Cell{y + 1, *spanEnd + 1},
-			//	)
-			//	s, _ = s.Intersect(gs)
-			//	for sc := s.Cells(); sc.Next(); {
-			//		scv := g.Get(sc.Value())
-			//		if isSymbol(scv) {
-			//			//fmt.Println(digVal)
-			//			sum += digVal
-			//			partNumbers.Insert(digVal)
-			//			break
-			//		}
-			//	}
-			//	spanStart = nil
-			//	spanEnd = nil
-			//	scanNow = false
-			//}
-
-			// for each span, check all neighbours
-
 		}
 	}
-	sumAlt := f8l.Sum(partNumbers.Items())
-	_ = sumAlt
 
 	gearSum := 0
-	for _, findings := range maybeGears {
-		if len(findings) == 2 {
-			ratio := findings[0] * findings[1]
-			gearSum += ratio
-		}
-	}
+	iterc.MapIterator(maybeGears).Filter(func(k iterc.KV[Coord2D, []int]) bool {
+		return len(k.Value) == 2
+	}).ForEach(func(k iterc.KV[Coord2D, []int]) {
+		ratio := k.Value[0] * k.Value[1]
+		gearSum += ratio
+	})
 
 	*p1 = strconv.Itoa(sum)
 	*p2 = strconv.Itoa(gearSum)

@@ -44,6 +44,24 @@ func ListIterator[T any](list []T) Iterator[T] {
 	}
 }
 
+type KV[K comparable, V any] struct {
+	Key   K
+	Value V
+}
+
+func MapIterator[K comparable, V any](m map[K]V) Iterator[KV[K, V]] {
+	elements := make(chan KV[K, V])
+	go func() {
+		for k, v := range m {
+			elements <- KV[K, V]{Key: k, Value: v}
+		}
+		close(elements)
+	}()
+	return Iterator[KV[K, V]]{
+		C: elements,
+	}
+}
+
 func Chain[T any](iters ...Iterator[T]) Iterator[T] {
 	elements := make(chan T)
 	go func() {
