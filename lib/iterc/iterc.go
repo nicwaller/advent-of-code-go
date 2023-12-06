@@ -389,3 +389,15 @@ func Product[T any](slices ...[]T) Iterator[[]T] {
 		C: elements,
 	}
 }
+
+func Count[T any](iter Iterator[T]) int {
+	c := 0
+	for range iter.C {
+		c++
+	}
+	return c
+}
+
+func (iter Iterator[T]) Count() int {
+	return Count(iter)
+}
