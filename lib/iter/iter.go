@@ -184,6 +184,10 @@ func (iv IndexedValue[T]) Pair() (int, T) {
 	return iv.Index, iv.Value
 }
 
+func (iter Iterator[T]) Repeat() Iterator[T] {
+	return Repeat(iter)
+}
+
 func Repeat[T any](iter Iterator[T]) Iterator[T] {
 	all := iter.List()
 	index := -1

@@ -92,15 +92,16 @@ func NumberFields(s string) []int {
 	var intMatcher = regexp.MustCompile("-?[0-9]+")
 	matches := intMatcher.FindAllString(s, math.MaxInt32)
 	return f8l.Map[string, int](matches, UnsafeAtoi)
-	//return
-	//stringFields := strings.FieldsFunc(s, func(r rune) bool {
-	//	return r != '-' && (r < '0' || r > '9')
-	//})
-	//intFields := make([]int, len(stringFields))
-	//for i := 0; i < len(intFields); i++ {
-	//	intFields[i], _ = strconv.Atoi(stringFields[i])
-	//}
-	//return intFields
+}
+
+func TextFields(s string) []string {
+	var intMatcher = regexp.MustCompile("-?[A-Za-z]+")
+	return intMatcher.FindAllString(s, math.MaxInt32)
+}
+
+func AlphanumericFields(s string) []string {
+	var intMatcher = regexp.MustCompile("-?[A-Za-z0-9]+")
+	return intMatcher.FindAllString(s, math.MaxInt32)
 }
 
 func Digits(s string) []int {
@@ -305,4 +306,30 @@ func Rotate[T any](offset int, original []T) []T {
 		c[(i+offset)%l] = v
 	}
 	return c
+}
+
+func GCD(a int, b int) int {
+	if b == 0 {
+		return a
+	}
+	return GCD(b, a%b)
+}
+
+func LCM(a int, b int) int {
+	if a > b {
+		return (a / GCD(a, b)) * b
+	} else {
+		return (b / GCD(a, b)) * a
+	}
+}
+
+func LCM_V(a ...int) int {
+	if len(a) < 2 {
+		panic(a)
+	}
+	lcm := LCM(a[0], a[1])
+	for i := 2; i < len(a); i++ {
+		lcm = LCM(lcm, a[i])
+	}
+	return lcm
 }
