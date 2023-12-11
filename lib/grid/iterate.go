@@ -69,7 +69,7 @@ func (grid *Grid[T]) floodSelect(current Cell, selFn func(v T) bool, seen *[]Cel
 		}
 		return false
 	}
-	for _, neighbour := range grid.NeighboursAdjacent(current, false) {
+	for _, neighbour := range grid.NeighboursSurround(current, false) {
 		// run selFn first because it'll be cheaper for this problem (Day 09)
 		if !selFn(grid.Get(neighbour)) {
 			continue

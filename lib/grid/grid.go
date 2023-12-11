@@ -22,6 +22,8 @@ func CellHash(cell Cell) int {
 		return cell[0]
 	case 2:
 		return (cell[0]&0xFFFFFFFF)<<32 + cell[1]&0xFFFFFFFF
+	case 0:
+		panic("cell has no dimensions, probably not initialized")
 	default:
 		panic("cannot hash n-dimensional cell")
 	}
