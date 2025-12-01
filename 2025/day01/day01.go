@@ -14,59 +14,30 @@ func main() {
 }
 
 func run(p1 *string, p2 *string) {
-	dialPosition := 50
+	settleOnZero := 0
+	ticksThroughZero := 0
 
-	c := 0
-	for _, line := range aoc.InputLines() {
-		dirPart := line[0]
-		numPart := line[1:]
-		m := 1
-		switch dirPart {
-		case 'L':
-			m = -1
-		case 'R':
-			m = 1
-		default:
-			panic(dirPart)
-		}
-		n, _ := strconv.Atoi(numPart)
-
-		dialDelta := m * n
-		dialPosition += dialDelta
-		dialPosition += 100
-		dialPosition %= 100
-
-		//fmt.Printf("delta=%d, pos=%d\n", dialDelta, dialPosition)
-
-		if dialPosition%100 == 0 {
-			c++
-		}
+	m := map[uint8]int{
+		'L': -1,
+		'R': 1,
 	}
-	*p1 = strconv.Itoa(c)
 
-	dialPosition = 50
-	c = 0
+	dialPosition := 50
 	for _, line := range aoc.InputLines() {
-		dirPart := line[0]
-		numPart := line[1:]
-		m := 1
-		switch dirPart {
-		case 'L':
-			m = -1
-		case 'R':
-			m = 1
-		default:
-			panic(dirPart)
-		}
-		n, _ := strconv.Atoi(numPart)
-
-		target := dialPosition + (n * m)
-		for ; dialPosition != target; dialPosition += m {
+		direction := m[line[0]]
+		magnitude, _ := strconv.Atoi(line[1:])
+		delta := direction * magnitude
+		target := dialPosition + delta
+		for ; dialPosition != target; dialPosition += direction {
 			if dialPosition%100 == 0 {
-				c++
+				ticksThroughZero++
 			}
 		}
+		if dialPosition%100 == 0 {
+			settleOnZero++
+		}
 	}
 
-	*p2 = strconv.Itoa(c)
+	*p1 = strconv.Itoa(settleOnZero)
+	*p2 = strconv.Itoa(ticksThroughZero)
 }
