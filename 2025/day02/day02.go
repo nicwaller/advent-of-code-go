@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"advent-of-code/lib/aoc"
-	"advent-of-code/lib/util"
+	. "advent-of-code/lib/util"
 )
 
 func main() {
@@ -19,10 +19,10 @@ func run(p1 *string, p2 *string) {
 	checksum1 := 0
 	checksum2 := 0
 
-	values := util.UIntFields(aoc.InputString())
-	for fi := 0; fi < len(values); fi += 2 {
+	intervals := Chunk(UIntFields(aoc.InputString()), 2)
+	for _, interval := range intervals {
 		// PERF: brute force: slow but simple!
-		for i := values[fi]; i <= values[fi+1]; i++ {
+		for i := interval[0]; i <= interval[1]; i++ {
 			s := strconv.Itoa(i)
 			if isRepeatedOnce(s) {
 				checksum1 += i
