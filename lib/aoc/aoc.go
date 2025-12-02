@@ -1,10 +1,6 @@
 package aoc
 
 import (
-	"advent-of-code/lib/grid"
-	"advent-of-code/lib/iter"
-	"advent-of-code/lib/iterc"
-	"advent-of-code/lib/util"
 	"fmt"
 	"io"
 	"log"
@@ -14,6 +10,11 @@ import (
 	"path"
 	"strings"
 	"time"
+
+	"advent-of-code/lib/grid"
+	"advent-of-code/lib/iter"
+	"advent-of-code/lib/iterc"
+	"advent-of-code/lib/util"
 )
 
 var inputFilename = "input.txt"
@@ -248,4 +249,18 @@ func ParagraphsIterator() iter.Iterator[[]string] {
 			return parLines
 		},
 	}
+}
+
+func InputDelimited2(d1, d2 string) [][]string {
+	// ignore whitespace
+	unwrap := func(a, b string) string { return a + b }
+	input := InputLinesIterator().Reduce(unwrap, "")
+
+	results := make([][]string, 0)
+
+	parts1 := strings.Split(input, d1)
+	for _, part := range parts1 {
+		results = append(results, strings.Split(part, d2))
+	}
+	return results
 }

@@ -1,14 +1,16 @@
 package util
 
 import (
-	"advent-of-code/lib/f8l"
-	"advent-of-code/lib/iter"
 	"bufio"
-	"golang.org/x/exp/constraints"
 	"math"
 	"os"
 	"regexp"
 	"strconv"
+
+	"golang.org/x/exp/constraints"
+
+	"advent-of-code/lib/f8l"
+	"advent-of-code/lib/iter"
 )
 
 func UnsafeAtoi(s string) int {
@@ -90,6 +92,12 @@ func ReadLines(filename string) iter.Iterator[string] {
 // TODO: rename to IntFields()
 func NumberFields(s string) []int {
 	var intMatcher = regexp.MustCompile("-?[0-9]+")
+	matches := intMatcher.FindAllString(s, math.MaxInt32)
+	return f8l.Map[string, int](matches, UnsafeAtoi)
+}
+
+func UIntFields(s string) []int {
+	var intMatcher = regexp.MustCompile("[0-9]+")
 	matches := intMatcher.FindAllString(s, math.MaxInt32)
 	return f8l.Map[string, int](matches, UnsafeAtoi)
 }

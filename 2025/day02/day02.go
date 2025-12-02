@@ -19,18 +19,10 @@ func run(p1 *string, p2 *string) {
 	checksum1 := 0
 	checksum2 := 0
 
-	unwrap := func(a, b string) string { return a + b }
-	input := aoc.InputLinesIterator().Reduce(unwrap, "")
-	ranges := strings.Split(input, ",")
-	for _, strRange := range ranges {
-		elements := strings.Split(strRange, "-")
-		if len(elements) != 2 {
-			continue
-		}
-		first := util.UnsafeAtoi(elements[0])
-		last := util.UnsafeAtoi(elements[1])
+	values := util.UIntFields(aoc.InputString())
+	for fi := 0; fi < len(values); fi += 2 {
 		// PERF: brute force: slow but simple!
-		for i := first; i <= last; i++ {
+		for i := values[fi]; i <= values[fi+1]; i++ {
 			s := strconv.Itoa(i)
 			if isRepeatedOnce(s) {
 				checksum1 += i
