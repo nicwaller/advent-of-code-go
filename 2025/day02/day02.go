@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"iter"
 	"strconv"
 	"strings"
 
@@ -12,13 +10,15 @@ import (
 
 func main() {
 	aoc.Select(2025, 2)
-	aoc.Test(run, "sample.txt", "1227775554", "")
-	aoc.Test(run, "input.txt", "23701357374", "")
+	aoc.Test(run, "sample.txt", "1227775554", "4174379265")
+	aoc.Test(run, "input.txt", "23701357374", "34284458938")
 	aoc.Run(run)
 }
 
 func run(p1 *string, p2 *string) {
-	var checksum1 uint64 = 0
+	checksum1 := 0
+	checksum2 := 0
+
 	for _, line := range aoc.InputLines() {
 		ranges := strings.Split(line, ",")
 		for _, strRange := range ranges {
@@ -28,38 +28,47 @@ func run(p1 *string, p2 *string) {
 			elements := strings.Split(strRange, "-")
 			first := util.UnsafeAtoi(elements[0])
 			last := util.UnsafeAtoi(elements[1])
-			for iid := range invalidIDsInRange(uint64(first), uint64(last)) {
-				checksum1 += iid
+			for i := first; i <= last; i++ {
+				s := strconv.Itoa(i)
+				if isRepeatedOnce(s) {
+					checksum1 += i
+				}
+				if isRepeatingSequence(s) {
+					checksum2 += i
+				}
 			}
 		}
 	}
-	*p1 = strconv.Itoa(int(checksum1))
+	*p1 = strconv.Itoa(checksum1)
+	*p2 = strconv.Itoa(checksum2)
 }
 
-func invalidIDsInRange(first, last uint64) iter.Seq[uint64] {
-	if last < first {
-		panic("invalid range")
+func isRepeatedOnce(s string) bool {
+	if len(s)%2 == 1 {
+		// can never be true for odd length strings
+		return false
 	}
-	return func(yield func(uint64) bool) {
-		strFirst := fmt.Sprintf("%d", first)
-		strFirstHalf := strFirst[:(len(strFirst) / 2)]
-		v, _ := strconv.Atoi(strFirstHalf)
-		var ticker = uint64(v)
-		var tickerConcat uint64
-		update := func(increment bool) {
-			if increment {
-				ticker++
-			}
-			tickerConcat = uint64(util.UnsafeAtoi(fmt.Sprintf("%d%d", ticker, ticker)))
-		}
+	b := len(s) / 2
+	h1 := s[:b]
+	h2 := s[b:]
+	return h1 == h2
+}
 
-		update(false)
-		for ; tickerConcat <= last; update(true) {
-			if tickerConcat >= first && tickerConcat <= last {
-				yield(tickerConcat)
-			} else {
-				// wasted effort
-			}
+func isRepeatingSequence(s string) bool {
+	maxLen := len(s) / 2
+	for patternLength := 1; patternLength <= maxLen; patternLength++ {
+		if isRepeatingSequenceN(s, patternLength) {
+			return true
 		}
 	}
+	return false
+}
+
+func isRepeatingSequenceN(haystack string, patternLength int) bool {
+	if len(haystack)%patternLength != 0 {
+		return false
+	}
+	needle := haystack[0:patternLength]
+	patternReps := len(haystack) / patternLength
+	return haystack == strings.Repeat(needle, patternReps)
 }
