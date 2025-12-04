@@ -1,10 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 
 	"advent-of-code/lib/aoc"
+	"advent-of-code/lib/grid"
+	"advent-of-code/lib/iter"
 )
 
 func main() {
@@ -15,53 +16,26 @@ func main() {
 }
 
 func run(p1 *string, p2 *string) {
-	accessible := 0
 	g := aoc.InputGridRunes()
-	for _, cell := range g.Cells().List() {
-		if g.Get(cell) == "." {
-			continue
-		}
 
-		count := 0
-		for _, n := range g.NeighboursSurround(cell, false) {
-			if g.Get(n) == "@" {
-				count++
-			}
-		}
-		if count < 4 {
-			accessible++
-		}
+	isPaper := func(c grid.Cell) bool {
+		return g.Get(c) == "@"
 	}
+
+	isReachable := func(c grid.Cell) bool {
+		neighbours := iter.ListIterator(g.NeighboursSurround(c, false))
+		return neighbours.Filter(isPaper).Count() < 4
+	}
+
+	*p1 = strconv.Itoa(g.Cells().Filter(isPaper).Filter(isReachable).Count())
 
 	removedTotal := 0
-cleanup:
-	for {
-		removed := 0
-
-		for _, cell := range g.Cells().List() {
-			if g.Get(cell) == "." {
-				continue
-			}
-
-			count := 0
-			for _, n := range g.NeighboursSurround(cell, false) {
-				if g.Get(n) == "@" {
-					count++
-				}
-			}
-			if count < 4 {
-				g.Set(cell, ".")
-				removed++
-			}
-		}
-
-		fmt.Printf("removed this round: %d\n", removed)
-		removedTotal += removed
-		if removed == 0 {
-			break cleanup
-		}
+	for previous := -1; previous != removedTotal; {
+		previous = removedTotal
+		g.Cells().Filter(isPaper).Filter(isReachable).Counting(&removedTotal).Each(func(cell grid.Cell) {
+			g.Set(cell, ".")
+		})
 	}
 
-	*p1 = strconv.Itoa(accessible)
 	*p2 = strconv.Itoa(removedTotal)
 }
