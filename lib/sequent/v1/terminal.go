@@ -1,5 +1,10 @@
 package v1
 
+func (t Iterator[T]) Discard() {
+	for _ = range t.iterator {
+	}
+}
+
 // Each uses a callback to handle each item produced by the iterator.
 // This way is generally preferred because it works on infinite streams.
 func (t Iterator[T]) Each(do func(v T)) {

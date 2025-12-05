@@ -10,6 +10,22 @@ func SeqIterator[T any](seq iter.Seq[T]) Iterator[T] {
 }
 
 func ListIterator[T any](list []T) Iterator[T] {
+	// although temping to use slices.Values(), it has different semantics
+	// the iterator produced by slices.Values() can be "replayed"
+	// but we want iterators that cannot be replayed
+
+	// index is intentionally outside the loop so that it isn't reset on "replay"
+	i := 0
+	return Iterator[T]{func(yield func(T) bool) {
+		for i < len(list) {
+			v := list[i]
+			i++
+			keepGoing := yield(v)
+			if !keepGoing {
+				return
+			}
+		}
+	}}
 	return SeqIterator[T](slices.Values(list))
 }
 

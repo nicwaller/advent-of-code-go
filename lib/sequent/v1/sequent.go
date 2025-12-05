@@ -2,6 +2,8 @@ package v1
 
 import (
 	"iter"
+
+	"golang.org/x/exp/slices"
 )
 
 type Iterator[T any] struct {
@@ -103,8 +105,7 @@ func SlidingWindow[T any](ite Iterator[T], windowSize int) Iterator[[]T] {
 	})
 
 	return Iterator[[]T]{func(yield func([]T) bool) {
-		// ... I'm not sure if this is quite right.
-		if !yield(window) {
+		if !yield(slices.Clone(window)) {
 			return
 		}
 
@@ -112,7 +113,7 @@ func SlidingWindow[T any](ite Iterator[T], windowSize int) Iterator[[]T] {
 			// PERF: using append potentially wastes a lot of memory
 			// TODO: use a fancy ring queue instead
 			window = append(window[1:], next)
-			return yield(window)
+			return yield(slices.Clone(window))
 		})
 	}}
 }
