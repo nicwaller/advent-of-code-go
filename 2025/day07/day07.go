@@ -1,7 +1,6 @@
 package main
 
 import (
-	"iter"
 	"strconv"
 
 	"advent-of-code/lib/aoc"
@@ -23,8 +22,6 @@ const (
 	TachyonBeam   = '|'
 	BeamSplitter  = '^'
 )
-
-type Beam = iter.Seq[grid2.Cell[rune]]
 
 func run(p1 *string, p2 *string) {
 	*p1 = strconv.Itoa(countActivatedBeamSplitters())
