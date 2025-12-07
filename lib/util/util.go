@@ -2,6 +2,7 @@ package util
 
 import (
 	"bufio"
+	"iter"
 	"math"
 	"os"
 	"regexp"
@@ -10,7 +11,7 @@ import (
 	"golang.org/x/exp/constraints"
 
 	"advent-of-code/lib/f8l"
-	"advent-of-code/lib/iter"
+	aociter "advent-of-code/lib/iter"
 )
 
 func UnsafeAtoi(s string) int {
@@ -63,7 +64,7 @@ func ScanMulti(scanner *bufio.Scanner, into *[]string) bool {
 	return true
 }
 
-func ReadLines(filename string) iter.Iterator[string] {
+func ReadLines(filename string) aociter.Iterator[string] {
 	file, err := os.Open(filename)
 	if err != nil {
 		// could also return EmptyIterator?
@@ -71,7 +72,7 @@ func ReadLines(filename string) iter.Iterator[string] {
 	}
 	scanner := bufio.NewScanner(file)
 	var line string
-	return iter.Iterator[string]{
+	return aociter.Iterator[string]{
 		Next: func() bool {
 			if !scanner.Scan() {
 				_ = file.Close()
@@ -340,4 +341,12 @@ func LCM_V(a ...int) int {
 		lcm = LCM(lcm, a[i])
 	}
 	return lcm
+}
+
+func IterNext[T any](seq iter.Seq[T]) (ret *T) {
+	seq(func(v T) bool {
+		ret = &v
+		return false
+	})
+	return ret
 }
