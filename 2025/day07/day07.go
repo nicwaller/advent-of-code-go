@@ -7,13 +7,14 @@ import (
 	"strconv"
 
 	"advent-of-code/lib/aoc"
+	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/grid2"
 	"advent-of-code/lib/util"
 )
 
 func main() {
 	aoc.Select(2025, 7)
-	aoc.Test(run, "sample.txt", "21", "")
+	aoc.Test(run, "sample.txt", "21", "40")
 	aoc.Test(run, "input.txt", "1516", "")
 	aoc.Run(run)
 }
@@ -30,6 +31,9 @@ type Beam = iter.Seq[grid2.Cell[rune]]
 func run(p1 *string, p2 *string) {
 	g := grid2.NewGridFromString(aoc.InputString())
 	*p1 = strconv.Itoa(approach1(g))
+
+	g2 := grid2.NewGridFromString(aoc.InputString())
+	*p2 = strconv.Itoa(partTwo(g2))
 }
 
 func approach1(g *grid2.Grid[rune]) int {
@@ -100,4 +104,28 @@ func approach1(g *grid2.Grid[rune]) int {
 	}
 
 	return splits
+}
+
+func partTwo(g *grid2.Grid[rune]) int {
+	particlesPerColumn := make([]int, g.All().Bounds().Dx()) // assumes origin at 0,0
+
+	// first, find the starting point "S" and launch the tachyon beam
+	startingCell := util.IterNext(g.Select().ValueEquals(StartingManifold))
+	particlesPerColumn[startingCell.Coordinates().X]++
+
+	// now proceed row by row
+	for y, row := range slices.Collect(g.Rows()) {
+		for x, r := range row {
+			if r == BeamSplitter {
+				fmt.Printf("activated beam splitter at [%d, %d]\n", x, y)
+				fmt.Println(particlesPerColumn)
+				// this is gonna fail with out of bounds, I know it
+				particlesPerColumn[x-1] += particlesPerColumn[x]
+				particlesPerColumn[x+1] += particlesPerColumn[x]
+				particlesPerColumn[x] = 0
+			}
+		}
+	}
+
+	return f8l.Reduce(particlesPerColumn, 0, util.IntSum)
 }
