@@ -107,7 +107,10 @@ func Run(run RunFunc) {
 	start := time.Now()
 	fmt.Printf("🏃Running: %s\n", inputFilename)
 	run(&p1Actual, &p2Actual)
-	elapsed := time.Since(start).Round(time.Millisecond)
+	elapsed := time.Since(start)
+	if elapsed > time.Millisecond {
+		elapsed = elapsed.Round(time.Millisecond)
+	}
 	summary.WriteString(fmt.Sprintf("Completed in %v\n", elapsed))
 	summary.WriteString(fmt.Sprintf("Part 1: %v\n", p1Actual))
 	summary.WriteString(fmt.Sprintf("Part 2: %v\n", p2Actual))
