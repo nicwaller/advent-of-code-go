@@ -104,7 +104,6 @@ func solve(homework Homework, transpose bool) int {
 	sum := 0
 
 	for _, problem := range homework {
-		problem.values.Print()
 		intValues := problem.Values(transpose)
 		switch problem.operator {
 		case "+":
