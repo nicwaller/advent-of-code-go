@@ -7,16 +7,15 @@ import (
 
 func FromString(s string) Grid[string] {
 	lines := strings.Split(strings.TrimSpace(s), "\n")
-	height := len(lines)
-	width := len(lines[0])
-	storage := make([]string, width*height)
-	offset := 0
+	width := 0
 	for _, line := range lines {
-		// TODO: validate line length
-		for _, val := range line {
-			storage[offset] = string(val)
-			offset++
-		}
+		width = max(width, len(line))
+	}
+	height := len(lines)
+	storage := make([]string, width*height)
+	for row, line := range lines {
+		offset := row * width
+		copy(storage[offset:offset+width], strings.Split(line, ""))
 	}
 	g := Grid[string]{
 		storage:    storage,
@@ -105,10 +104,23 @@ func NewGrid[T comparable](dimensions ...int) Grid[T] {
 	return g
 }
 
+// TODO: I thought this would also copy the contents of a slice :(
+// TODO: is this right? or off by one?
+// TODO: what to do with the origin?
+// WARNING: be careful, sometimes dimensions are 0-based, sometimes 1-based :(
 func NewGridFromSlice[T comparable](slice Slice) Grid[T] {
-	g := NewGrid[T](slice.Dimensions()...)
-	for i, _ := range slice {
-		g.offsets[i] = slice[i].Origin
+	dimensions := make([]int, len(slice))
+	for i := range slice {
+		s := slice[i]
+		dimensions[i] = s.Terminus - s.Origin
 	}
+	g := NewGrid[T](dimensions...)
+
+	for i := range slice {
+		s := slice[i]
+		g.offsets[i] = s.Origin
+	}
+	g.recalculateJumps()
+
 	return g
 }

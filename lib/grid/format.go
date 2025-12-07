@@ -14,6 +14,7 @@ func (grid *Grid[T]) String() string {
 	return grid.StringN(1)
 }
 
+// TODO: header should be optional
 func (grid *Grid[T]) StringN(width int) string {
 	switch len(grid.dimensions) {
 	case 1:

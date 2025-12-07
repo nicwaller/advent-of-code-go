@@ -219,6 +219,28 @@ func (grid *Grid[T]) IsInGrid(c Cell) bool {
 	return true
 }
 
+// TODO: SubGrid needs unit tests!
+// TODO: does this work if the src slice is non-canonical?
+func (grid *Grid[T]) SubGrid(srcSlice Slice) Grid[T] {
+	if !grid.All().ContainsSlice(srcSlice) {
+		panic("subslice is not wholly contained within the grid")
+	}
+	subGrid := NewGridFromSlice[T](srcSlice)
+	dstSlice := subGrid.All()
+	if !srcSlice.Equal(dstSlice) {
+		panic("subgrid failed: unequal slices")
+	}
+
+	ix := subGrid.Cells()
+	for ix.Next() {
+		c := ix.Value()
+		v := grid.Get(c)
+		subGrid.Set(c, v)
+	}
+
+	return subGrid
+}
+
 func ManhattanDistance(a Cell, b Cell) int {
 	if len(a) != len(b) {
 		panic("cells have unequal dimensions")

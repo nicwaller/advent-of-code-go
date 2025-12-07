@@ -162,6 +162,7 @@ func (grid *Grid[T]) RowIter() iter.Iterator[[]T] {
 //	}
 //}
 
+// TODO: sometimes I wish this iterator would also give the column index
 func (grid *Grid[T]) ColumnIter() iter.Iterator[[]T] {
 	// Assumes RowMajor storage
 	if len(grid.dimensions) != 2 {

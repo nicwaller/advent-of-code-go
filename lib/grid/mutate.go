@@ -1,10 +1,11 @@
 package grid
 
 import (
+	"fmt"
+
 	"advent-of-code/lib/f8l"
 	"advent-of-code/lib/iter"
 	"advent-of-code/lib/util"
-	"fmt"
 )
 
 // TODO: FillRect
@@ -71,6 +72,7 @@ func (grid *Grid[T]) MapSlice(mapFn func(v T) T, s Slice) {
 //	}
 //}
 
+// I kinda want to apply a transform on a subset (Slice) of an existing grid
 func TransformGrid[T comparable, Z comparable](g Grid[T], transform func(val T) Z) Grid[Z] {
 	newStorage := make([]Z, len(g.storage))
 	for index, item := range g.storage {

@@ -1,17 +1,28 @@
 package grid
 
 import (
-	"advent-of-code/lib/iter"
-	"advent-of-code/lib/util"
 	"errors"
 	"fmt"
+
+	"advent-of-code/lib/iter"
+	"advent-of-code/lib/util"
 )
 
+// TODO: maybe Slice should have the same column/row accessors that a Table has?
 type Slice []Range
 
 type Range struct {
 	Origin   int // inclusive
 	Terminus int // exclusive
+}
+
+func (slice Slice) Equal(s2 Slice) bool {
+	for i := 0; i < len(slice); i++ {
+		if slice[i] != s2[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func (slice Slice) Copy() Slice {
@@ -204,4 +215,9 @@ func (slice Slice) Contains(c Cell) bool {
 		}
 	}
 	return true
+}
+
+func (slice Slice) ContainsSlice(s2 Slice) bool {
+	_, err := slice.Intersect(s2)
+	return err == nil
 }
